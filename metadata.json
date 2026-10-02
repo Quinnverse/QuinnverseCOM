@@ -1,0 +1,6 @@
+{
+  "name": "Quinnverse - 独立产品工作室与实测智库",
+  "description": "Quinnverse 把真实的问题，做成真正能用的东西。自研出海产品、AI 工具实测数据库、交互式筛选 Agent 与独立开发实验室。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
