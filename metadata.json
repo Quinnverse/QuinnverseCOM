@@ -1,0 +1,6 @@
+{
+  "name": "Quinnverse - 独立产品工作室",
+  "description": "Quinnverse: 围绕「发现问题 → 找到工具 → 做出工具」不断生长的个人产品工作室。收录甄选工具，孵化自研产品，沉淀实测方法与实验室项目。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
