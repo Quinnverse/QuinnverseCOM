@@ -1,23 +1,44 @@
 import React, { useState } from 'react';
-import { Mail, Send, CheckCircle2 } from 'lucide-react';
-import { SITE_SETTINGS } from '../data/database';
+import { Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
   const [topic, setTopic] = useState('工具体验或反馈');
   const [email, setEmail] = useState('');
   const [content, setContent] = useState('');
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || !email.trim()) return;
-    setSent(true);
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/contact-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'contact',
+          topic,
+          email,
+          message: content,
+        }),
+      });
+
+      if (!response.ok) throw new Error('提交失败');
+      setSent(true);
+    } catch {
+      setError('消息暂时没有保存成功，请稍后重试。');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="py-16 sm:py-24 bg-[#F8FAFC] text-left">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Header */}
         <div className="space-y-3 border-b border-slate-200 pb-8">
           <div className="inline-block text-xs font-bold font-mono tracking-wider uppercase text-blue-700 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full">
             CONTACT & FEEDBACK
@@ -30,15 +51,14 @@ export const ContactPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Direct Email Card */}
         <div className="rounded-3xl border border-slate-200/90 bg-white p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
           <div className="space-y-1">
-            <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">OFFICIAL EMAIL</span>
-            <div className="text-base font-bold text-slate-950 font-mono">{SITE_SETTINGS.contactEmail}</div>
-            <p className="text-xs text-slate-500">所有邮件通常在 48 小时内完成阅读与回复。</p>
+            <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">练习与反馈</span>
+            <div className="text-base font-bold text-slate-950 font-mono">zhangqiyun2000@163.com</div>
+            <p className="text-xs text-slate-500">也可以直接发邮件；网页表单提交的消息会保存到后台。</p>
           </div>
           <a
-            href={`mailto:${SITE_SETTINGS.contactEmail}`}
+            href="mailto:zhangqiyun2000@163.com"
             className="px-5 py-2.5 rounded-full bg-[#0B132B] hover:bg-black text-xs font-bold text-white transition-colors flex items-center gap-1.5 shadow-xs"
           >
             <Mail className="w-3.5 h-3.5 text-slate-300" />
@@ -46,15 +66,12 @@ export const ContactPage: React.FC = () => {
           </a>
         </div>
 
-        {/* Structured Form */}
         <div className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-9 shadow-lg">
           {sent ? (
             <div className="py-12 text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
               <h3 className="text-xl font-bold text-slate-950">消息已送达 Quinnverse</h3>
-              <p className="text-xs text-slate-500">
-                感谢真实反馈，我们将根据内容认真处理。
-              </p>
+              <p className="text-xs text-slate-500">消息已经保存到后台系统。</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -96,13 +113,21 @@ export const ContactPage: React.FC = () => {
                 />
               </div>
 
+              {error && (
+                <div className="flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <div className="pt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-1.5 px-7 py-3 text-xs font-bold text-white bg-[#0B132B] hover:bg-black rounded-full shadow-md transition-all cursor-pointer"
+                  disabled={submitting}
+                  className="inline-flex items-center gap-1.5 px-7 py-3 text-xs font-bold text-white bg-[#0B132B] hover:bg-black disabled:opacity-60 rounded-full shadow-md transition-all cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>投递消息</span>
+                  <span>{submitting ? '保存中…' : '投递消息'}</span>
                 </button>
               </div>
             </form>
