@@ -3,6 +3,9 @@
 `Quinnverse/QuinnverseCOM1` 已并入本仓库，保留为独立分支，历史与代码完整未删。
 每个版本都是一个分支，在 GitHub 分支下拉框切换即可查看源码。
 
+> ⚠️ 原 `Quinnverse/QuinnverseCOM1` 仓库已删除，本仓库的 `version/quinnverse-com1`
+> 分支（提交 `fa157e7`，32 个文件）是它的**唯一副本**，请勿删除该分支。
+
 ## 版本分支
 
 | 分支 | 对应版本 | 说明 | 状态 |
@@ -12,7 +15,7 @@
 | `v2-dark-initial` | v2 暗色初版 | 首版可运行暗色站（`b4ee12a`） | 归档 |
 | `v3-light-redesign` | v3 亮色重设计 | 与 `main` 同 commit，命名固化便于对比 | 归档 |
 | `v4-local-refactor` | **v4 改造版** | 设计系统收口 + 合规修复 + 真实截图 | **推荐基线** |
-| `version/quinnverse-com1` | **原 QuinnverseCOM1** | 深色版 + express server + Gemini tool-finder + SitemapModal | 已并入，保留 |
+| `version/quinnverse-com1` | **原 QuinnverseCOM1** | 深色版 + express server + Gemini tool-finder + SitemapModal | **唯一副本，勿删** |
 
 ## 进行中的功能分支
 
