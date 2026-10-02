@@ -108,7 +108,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#080B12] text-[#E2E8F0] selection:bg-cyan-500/25 selection:text-cyan-200">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 selection:bg-[#0B132B] selection:text-white">
       {/* Top Navigation */}
       <Navbar onOpenSearch={() => setSearchOpen(true)} />
 

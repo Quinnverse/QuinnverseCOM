@@ -9,8 +9,8 @@
 
   body {
     font-family: var(--font-body);
-    background-color: #080B12;
-    color: #E2E8F0;
+    background-color: #F8FAFC;
+    color: #0F172A;
   }
 
   h1, h2, h3, h4, .font-display {
@@ -23,19 +23,24 @@
   }
 }
 
-/* Dark theme subtle scrollbar */
+/* Light crisp scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #080B12;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94A3B8;
 }
 
+/* Smooth dotted flight / journey path style */
+.journey-dotted-line {
+  background-image: radial-gradient(#94A3B8 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+}

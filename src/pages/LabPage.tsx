@@ -5,25 +5,25 @@ import { LAB_EXPERIMENTS } from '../data/database';
 
 export const LabPage: React.FC = () => {
   return (
-    <div className="py-16 sm:py-20 bg-[#080B12] text-left">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-12">
+    <div className="py-16 sm:py-24 bg-[#F8FAFC] text-left">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="max-w-3xl space-y-3">
-          <div className="text-xs font-mono font-semibold text-amber-400 tracking-wider">
+          <div className="inline-block text-xs font-bold font-mono tracking-wider uppercase text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-1 rounded-full">
             EXPERIMENTS IN PROGRESS
           </div>
-          <h1 className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight">
+          <h1 className="font-display text-4xl sm:text-6xl font-black text-slate-950 tracking-tight">
             Quinnverse Lab
           </h1>
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
             这里记录 Quinnverse 正在打磨的原型、自动化探索与规则实验。这里的东西不一定保证都能成为正式产品，但每一项都真实写过代码、跑过流程，并且留下了失败与避坑的经验。真实性优先于数量充数。
           </p>
         </div>
 
         {/* Experiments List */}
         <div className="space-y-6">
-          <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-800 pb-3">
-            <span>当前公开实验 ({LAB_EXPERIMENTS.length})</span>
+          <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-200 pb-3">
+            <span className="font-bold text-slate-900">当前公开实验 ({LAB_EXPERIMENTS.length})</span>
             <span className="font-mono text-[11px]">不造假 · 失败实验亦如实保留</span>
           </div>
 
@@ -31,35 +31,35 @@ export const LabPage: React.FC = () => {
             {LAB_EXPERIMENTS.map((exp) => (
               <div
                 key={exp.id}
-                className="rounded-2xl border border-slate-800 bg-[#0C1220] p-6 sm:p-8 flex flex-col justify-between shadow-xl space-y-6 hover:border-slate-700 transition-all"
+                className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-9 flex flex-col justify-between shadow-2xs hover:shadow-xl transition-all space-y-6"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono text-cyan-400 font-bold">{exp.slug.toUpperCase()}</span>
-                    <span className="font-mono text-amber-400 text-[11px] font-semibold bg-amber-950/60 border border-amber-800/50 px-2 py-0.5 rounded">
+                    <span className="font-mono text-blue-600 font-bold">{exp.slug.toUpperCase()}</span>
+                    <span className="font-mono text-amber-800 text-[11px] font-bold bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
                       {exp.status}
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="font-display text-2xl font-bold text-slate-950">
                     {exp.title}
                   </h3>
 
-                  <div className="rounded-xl bg-[#090D17] p-3.5 border border-slate-800 text-xs text-slate-300">
-                    <span className="font-bold text-amber-400">假说 (Hypothesis)：</span>
-                    <p className="mt-1 leading-relaxed">{exp.hypothesis}</p>
+                  <div className="rounded-2xl bg-amber-50/50 p-4 border border-amber-200/80 text-xs text-slate-700">
+                    <span className="font-bold text-amber-800">假说 (Hypothesis)：</span>
+                    <p className="mt-1 leading-relaxed font-medium">{exp.hypothesis}</p>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {exp.whatWasBuilt}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-mono text-[11px]">Date: {exp.date}</span>
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-400 font-mono text-[11px]">Date: {exp.date}</span>
                   <Link
                     to={`/lab/${exp.slug}`}
-                    className="inline-flex items-center gap-1 font-semibold text-cyan-400 hover:text-cyan-300"
+                    className="inline-flex items-center gap-1 font-bold text-slate-900 hover:text-blue-600"
                   >
                     <span>查看完整实验复盘与踩坑</span>
                     <ArrowRight className="w-3.5 h-3.5" />

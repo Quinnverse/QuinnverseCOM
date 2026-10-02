@@ -71,7 +71,6 @@ export const FinderPage: React.FC = () => {
       }
     }
 
-    // Fallback if none matched
     if (results.length === 0) {
       const cursor = PICKS.find((p) => p.slug === 'cursor');
       if (cursor) {
@@ -94,26 +93,26 @@ export const FinderPage: React.FC = () => {
   };
 
   return (
-    <div className="py-16 sm:py-20 bg-[#080B12] text-left">
+    <div className="py-16 sm:py-24 bg-[#F8FAFC] text-left">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Navigation Breadcrumb */}
         <Link
           to="/picks"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>返回实测库 (Picks)</span>
         </Link>
 
         {/* Masthead */}
-        <div className="space-y-3 border-b border-slate-800 pb-8">
-          <div className="text-xs font-mono font-semibold text-cyan-400 tracking-wider">
+        <div className="space-y-3 border-b border-slate-200 pb-8">
+          <div className="inline-block text-xs font-bold font-mono tracking-wider uppercase text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full">
             DETERMINISTIC DIAGNOSTIC ENGINE
           </div>
-          <h1 className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight">
+          <h1 className="font-display text-4xl sm:text-5xl font-black text-slate-950 tracking-tight">
             Quinnverse Finder
           </h1>
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
             Tell Quinnverse what you’re trying to do.  
             不要在数百个工具分类里迷失。勾选你的真实边界条件，诊断器将从实测库中为你匹配 2~3 个最适合的选项。
           </p>
@@ -121,10 +120,10 @@ export const FinderPage: React.FC = () => {
 
         {/* Diagnostic Wizard Box */}
         {!hasSubmitted ? (
-          <div className="rounded-2xl border border-slate-800 bg-[#0C1220] p-6 sm:p-10 shadow-2xl space-y-8">
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-10 shadow-xl space-y-8">
             {/* Step Indicator */}
-            <div className="flex items-center justify-between text-xs text-slate-500 font-mono border-b border-slate-800 pb-4">
-              <span>STEP {step} OF 4</span>
+            <div className="flex items-center justify-between text-xs text-slate-500 font-mono border-b border-slate-100 pb-4">
+              <span className="font-bold text-slate-900">STEP {step} OF 4</span>
               <span>确定性规则过滤 · 零 LLM 随机性</span>
             </div>
 
@@ -132,10 +131,10 @@ export const FinderPage: React.FC = () => {
             {step === 1 && (
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-base sm:text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-slate-950">
                     01. 你的首要目标场景是什么？
                   </h3>
-                  <p className="text-xs text-slate-400">选择当前最卡手或最迫切希望提效的具体任务。</p>
+                  <p className="text-xs text-slate-500">选择当前最卡手或最迫切希望提效的具体任务。</p>
                 </div>
                 <div className="space-y-2.5 pt-2">
                   {[
@@ -149,14 +148,14 @@ export const FinderPage: React.FC = () => {
                       key={opt.id}
                       type="button"
                       onClick={() => setGoal(opt.id as any)}
-                      className={`w-full p-4 rounded-xl border text-left transition-all ${
+                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
                         goal === opt.id
-                          ? 'border-cyan-400 bg-cyan-950/40 text-white shadow-sm'
-                          : 'border-slate-800 bg-[#090D17] text-slate-300 hover:border-slate-700'
+                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
                       }`}
                     >
-                      <div className="font-bold text-xs sm:text-sm text-white">{opt.title}</div>
-                      <div className="text-xs text-slate-400 mt-0.5">{opt.desc}</div>
+                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -167,10 +166,10 @@ export const FinderPage: React.FC = () => {
             {step === 2 && (
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-base sm:text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-slate-950">
                     02. 你的技术适应度与配置意愿如何？
                   </h3>
-                  <p className="text-xs text-slate-400">确定工具的上手复杂度边界。</p>
+                  <p className="text-xs text-slate-500">确定工具的上手复杂度边界。</p>
                 </div>
                 <div className="space-y-2.5 pt-2">
                   {[
@@ -182,14 +181,14 @@ export const FinderPage: React.FC = () => {
                       key={opt.id}
                       type="button"
                       onClick={() => setTechnical(opt.id as any)}
-                      className={`w-full p-4 rounded-xl border text-left transition-all ${
+                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
                         technical === opt.id
-                          ? 'border-cyan-400 bg-cyan-950/40 text-white shadow-sm'
-                          : 'border-slate-800 bg-[#090D17] text-slate-300 hover:border-slate-700'
+                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
                       }`}
                     >
-                      <div className="font-bold text-xs sm:text-sm text-white">{opt.title}</div>
-                      <div className="text-xs text-slate-400 mt-0.5">{opt.desc}</div>
+                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -200,10 +199,10 @@ export const FinderPage: React.FC = () => {
             {step === 3 && (
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-base sm:text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-slate-950">
                     03. 你的网络环境与数据隐私边界是？
                   </h3>
-                  <p className="text-xs text-slate-400">排除无法稳定访问或触犯隐私红线的选项。</p>
+                  <p className="text-xs text-slate-500">排除无法稳定访问或触犯隐私红线的选项。</p>
                 </div>
                 <div className="space-y-2.5 pt-2">
                   {[
@@ -215,14 +214,14 @@ export const FinderPage: React.FC = () => {
                       key={opt.id}
                       type="button"
                       onClick={() => setAccess(opt.id as any)}
-                      className={`w-full p-4 rounded-xl border text-left transition-all ${
+                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
                         access === opt.id
-                          ? 'border-cyan-400 bg-cyan-950/40 text-white shadow-sm'
-                          : 'border-slate-800 bg-[#090D17] text-slate-300 hover:border-slate-700'
+                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
                       }`}
                     >
-                      <div className="font-bold text-xs sm:text-sm text-white">{opt.title}</div>
-                      <div className="text-xs text-slate-400 mt-0.5">{opt.desc}</div>
+                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -233,10 +232,10 @@ export const FinderPage: React.FC = () => {
             {step === 4 && (
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-base sm:text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-slate-950">
                     04. 你的预算考量倾向？
                   </h3>
-                  <p className="text-xs text-slate-400">筛选对应费用模型的工具。</p>
+                  <p className="text-xs text-slate-500">筛选对应费用模型的工具。</p>
                 </div>
                 <div className="space-y-2.5 pt-2">
                   {[
@@ -248,14 +247,14 @@ export const FinderPage: React.FC = () => {
                       key={opt.id}
                       type="button"
                       onClick={() => setBudget(opt.id as any)}
-                      className={`w-full p-4 rounded-xl border text-left transition-all ${
+                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
                         budget === opt.id
-                          ? 'border-cyan-400 bg-cyan-950/40 text-white shadow-sm'
-                          : 'border-slate-800 bg-[#090D17] text-slate-300 hover:border-slate-700'
+                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
                       }`}
                     >
-                      <div className="font-bold text-xs sm:text-sm text-white">{opt.title}</div>
-                      <div className="text-xs text-slate-400 mt-0.5">{opt.desc}</div>
+                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -263,12 +262,12 @@ export const FinderPage: React.FC = () => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+            <div className="flex items-center justify-between pt-6 border-t border-slate-100">
               {step > 1 ? (
                 <button
                   type="button"
                   onClick={() => setStep(step - 1)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+                  className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-950 transition-colors"
                 >
                   ← 上一步
                 </button>
@@ -280,7 +279,7 @@ export const FinderPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStep(step + 1)}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-sm transition-colors"
+                  className="inline-flex items-center gap-1.5 px-6 py-3 text-xs font-bold text-white bg-[#0B132B] hover:bg-black rounded-full shadow-sm transition-all"
                 >
                   <span>下一步</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -289,7 +288,7 @@ export const FinderPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setHasSubmitted(true)}
-                  className="inline-flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shadow-sm transition-colors"
+                  className="inline-flex items-center gap-1.5 px-7 py-3 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-full shadow-sm transition-all"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>生成诊断推荐</span>
@@ -300,17 +299,17 @@ export const FinderPage: React.FC = () => {
         ) : (
           /* Recommendation Output Panel */
           <div className="space-y-8">
-            <div className="rounded-xl border border-slate-800 bg-[#0C1220] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
               <div className="space-y-1">
-                <span className="text-xs font-mono font-bold text-cyan-400">DIAGNOSIS RESULT</span>
-                <h3 className="text-base font-bold text-white">基于你的边界条件，推荐以下实测选项：</h3>
-                <p className="text-xs text-slate-400">
+                <span className="text-xs font-mono font-bold text-blue-600 uppercase">DIAGNOSIS RESULT</span>
+                <h3 className="text-lg font-bold text-slate-950">基于你的边界条件，推荐以下实测选项：</h3>
+                <p className="text-xs text-slate-500">
                   条件组合：`[{goal}]` · `[{technical}]` · `[{access}]` · `[{budget}]`
                 </p>
               </div>
               <button
                 onClick={handleRestart}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors whitespace-nowrap"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>重新诊断</span>
@@ -321,48 +320,48 @@ export const FinderPage: React.FC = () => {
               {recommendations.map((rec, i) => (
                 <div
                   key={rec.pick.id}
-                  className="rounded-2xl border border-slate-800 bg-[#0C1220] p-6 sm:p-8 space-y-6 shadow-xl"
+                  className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-9 space-y-6 shadow-md"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-xs">
-                        <span className="font-mono text-cyan-400 font-bold">MATCH 0{i + 1}</span>
-                        <span className="text-slate-600">·</span>
-                        <span className="text-slate-400">{rec.pick.category}</span>
+                        <span className="font-mono text-blue-600 font-bold">MATCH 0{i + 1}</span>
+                        <span className="text-slate-300">·</span>
+                        <span className="text-slate-500 font-semibold">{rec.pick.category}</span>
                       </div>
-                      <h4 className="text-xl sm:text-2xl font-bold text-white">{rec.pick.name}</h4>
+                      <h4 className="text-2xl font-bold text-slate-950">{rec.pick.name}</h4>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded border text-emerald-400 bg-emerald-950/60 border-emerald-800/50">
+                    <div>
+                      <span className="text-xs font-mono font-bold px-3 py-1 rounded-full border text-emerald-800 bg-emerald-50 border-emerald-200">
                         {rec.pick.evidenceLevel}
                       </span>
                     </div>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {rec.pick.summary}
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div className="rounded-xl bg-[#091414] border border-emerald-950/50 p-4 space-y-1">
-                      <div className="font-bold text-emerald-400">为什么契合你的场景 (Why this fits)</div>
-                      <p className="text-slate-300 leading-relaxed">{rec.reason}</p>
+                    <div className="rounded-2xl bg-emerald-50/50 border border-emerald-200 p-4.5 space-y-1">
+                      <div className="font-bold text-emerald-800">为什么契合你的场景 (Why this fits)</div>
+                      <p className="text-slate-700 leading-relaxed font-medium">{rec.reason}</p>
                     </div>
 
-                    <div className="rounded-xl bg-[#160B0E] border border-rose-950/50 p-4 space-y-1">
-                      <div className="font-bold text-rose-400">必须知晓的局限 (Trade-offs)</div>
-                      <p className="text-slate-300 leading-relaxed">{rec.tradeoff}</p>
+                    <div className="rounded-2xl bg-rose-50/50 border border-rose-200 p-4.5 space-y-1">
+                      <div className="font-bold text-rose-800">必须知晓的局限 (Trade-offs)</div>
+                      <p className="text-slate-700 leading-relaxed font-medium">{rec.tradeoff}</p>
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs">
+                  <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs">
                     <div className="text-slate-500 font-mono text-[11px]">
                       国内直连: {rec.pick.pricingAccess.accessFromChina} · {rec.pick.pricingAccess.pricingModel.split(' ')[0]}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4">
                       <Link
                         to={`/picks/${rec.pick.slug}`}
-                        className="font-semibold text-cyan-400 hover:text-cyan-300"
+                        className="font-bold text-slate-900 hover:text-blue-600"
                       >
                         阅读完整实测手记 →
                       </Link>
@@ -370,7 +369,7 @@ export const FinderPage: React.FC = () => {
                         href={rec.pick.officialUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0B132B] hover:bg-black text-white font-bold transition-colors"
                       >
                         <span>访问官网</span>
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -381,14 +380,14 @@ export const FinderPage: React.FC = () => {
               ))}
             </div>
 
-            <div className="rounded-xl border border-slate-800/80 bg-[#090D17] p-5 text-xs text-slate-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 text-xs text-slate-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
               <div>
-                <span className="text-slate-300 font-semibold">没有找到完美的解法？</span>
+                <span className="text-slate-900 font-bold">没有找到完美的解法？</span>
                 <p className="mt-0.5">现有市面产品未覆盖的严重断层，往往就是值得自研的信号。欢迎向我们提交你的卡点。</p>
               </div>
               <Link
                 to="/contact"
-                className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold whitespace-nowrap"
+                className="px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold whitespace-nowrap"
               >
                 提交未解痛点
               </Link>

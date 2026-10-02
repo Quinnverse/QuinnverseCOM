@@ -23,70 +23,72 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch }) => {
   }, [onOpenSearch]);
 
   const navLinks = [
-    { label: 'Products', href: '/products' },
-    { label: 'Picks', href: '/picks' },
-    { label: 'Lab', href: '/lab' },
-    { label: 'Journal', href: '/journal' },
-    { label: 'About', href: '/about' },
+    { label: '首页', href: '/' },
+    { label: '自研产品', href: '/products' },
+    { label: '精选实测', href: '/picks' },
+    { label: '前沿实验室', href: '/lab' },
+    { label: '深度手记', href: '/journal' },
+    { label: '关于我们', href: '/about' },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-[#080B12]/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Zone 1: Single text wordmark */}
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md transition-all shadow-2xs">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Brand Wordmark */}
         <Link 
           to="/" 
-          className="font-display text-xl font-extrabold tracking-tight text-white hover:text-cyan-400 transition-colors"
+          className="font-display text-xl sm:text-2xl font-black tracking-tight text-slate-900 hover:text-slate-700 transition-colors flex items-center gap-2"
         >
-          QUINNVERSE
+          <span>QUINNVERSE</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mb-0.5" />
         </Link>
 
-        {/* Zone 2: Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-300">
+        {/* Desktop Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-600">
           {navLinks.map((link) => {
-            const isActive = path === link.href || (link.href !== '/' && path.startsWith(link.href));
+            const isActive = link.href === '/' ? path === '/' : path.startsWith(link.href);
             return (
               <Link
                 key={link.href}
                 to={link.href}
                 className={`py-1 relative transition-colors ${
-                  isActive ? 'text-white font-semibold' : 'hover:text-white text-slate-300'
+                  isActive ? 'text-slate-950 font-black' : 'hover:text-slate-900 text-slate-600'
                 }`}
               >
                 {link.label}
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-cyan-400" />
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-blue-600" />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Zone 3: Actions */}
+        {/* Actions: Search & Pill Button */}
         <div className="flex items-center gap-3">
           {/* Quick Search Trigger */}
           <button
             onClick={onOpenSearch}
-            className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-slate-400 bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200/80 rounded-full transition-colors cursor-pointer"
             title="全局搜索 (⌘K)"
           >
-            <Search className="w-3.5 h-3.5 text-slate-400" />
+            <Search className="w-3.5 h-3.5 text-slate-700" />
             <span className="hidden sm:inline font-mono text-[11px] text-slate-500">⌘K</span>
           </button>
 
-          {/* Work with Quinnverse primary CTA */}
+          {/* Work with Quinnverse primary CTA - Warm refined pill button */}
           <Link
             to="/work-with-us"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-cyan-300 bg-cyan-950/80 hover:bg-cyan-900/80 border border-cyan-700/60 rounded-lg transition-colors whitespace-nowrap"
+            className="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-white bg-slate-900 hover:bg-blue-600 rounded-full transition-all shadow-xs hover:shadow-md whitespace-nowrap active:scale-98"
           >
-            <span>Work with Quinnverse</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-cyan-400" />
+            <span>合作交流</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg"
+            className="lg:hidden p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
             aria-label="切换菜单"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -96,14 +98,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch }) => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-slate-800 bg-[#0A0E18] px-4 py-4 space-y-3">
-          <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="lg:hidden border-b border-slate-200 bg-white px-4 py-5 space-y-4 shadow-lg">
+          <div className="grid grid-cols-2 gap-2 text-sm font-bold">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                className="px-3.5 py-2.5 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors"
               >
                 {link.label}
               </Link>
@@ -111,34 +113,34 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch }) => {
             <Link
               to="/finder"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-cyan-300 hover:text-white hover:bg-slate-800 transition-colors font-medium"
+              className="px-3.5 py-2.5 rounded-xl text-blue-600 hover:bg-blue-50 transition-colors"
             >
-              Finder 需求诊断
+              需求诊断器
             </Link>
             <Link
               to="/resources"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+              className="px-3.5 py-2.5 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors"
             >
-              Resources 实用手册
+              实用手册与资源
             </Link>
           </div>
 
-          <div className="pt-2 border-t border-slate-800/80 flex flex-col gap-2">
+          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
             <Link
               to="/work-with-us"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-sm"
+              className="w-full flex items-center justify-center gap-1.5 px-5 py-3 text-xs font-bold text-white bg-slate-900 hover:bg-blue-600 rounded-full shadow-sm"
             >
-              <span>Work with Quinnverse</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-950" />
+              <span>与工作室交流</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
-            <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 pt-1">
-              <Link to="/disclosure" onClick={() => setMobileMenuOpen(false)} className="hover:text-slate-300">
-                商业与返佣政策
+            <div className="flex items-center justify-between text-xs text-slate-500 px-1 pt-1 font-medium">
+              <Link to="/disclosure" onClick={() => setMobileMenuOpen(false)} className="hover:text-slate-800">
+                商业返佣政策
               </Link>
-              <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-slate-300">
-                联系工作室
+              <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="hover:text-slate-800">
+                联系与反馈
               </Link>
             </div>
           </div>

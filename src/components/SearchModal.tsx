@@ -144,13 +144,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 px-4 bg-black/80 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 sm:pt-28 px-4 bg-slate-900/40 backdrop-blur-xs">
       <div 
-        className="relative w-full max-w-2xl rounded-2xl border border-slate-800 bg-[#0C1220] shadow-2xl overflow-hidden flex flex-col max-h-[75vh]"
+        className="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden flex flex-col max-h-[75vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3.5 border-b border-slate-800 bg-[#090D17]">
+        <div className="flex items-center px-5 py-4 border-b border-slate-100 bg-slate-50/70">
           <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
           <input
             ref={inputRef}
@@ -162,76 +162,76 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
             }}
             onKeyDown={handleKeyDown}
             placeholder="搜索产品、实测工具、实验记录或手记..."
-            className="w-full bg-transparent text-white placeholder-slate-500 text-sm focus:outline-none"
+            className="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm font-medium focus:outline-none"
           />
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-200/60 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Results List */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+        <div className="flex-1 overflow-y-auto p-3 space-y-1">
           {results.length > 0 ? (
             results.map((item, index) => {
               const isSelected = index === selectedIndex;
-              const typeColor = 
-                item.type === 'PRODUCT' ? 'text-cyan-400 bg-cyan-950/60 border-cyan-800/40' :
-                item.type === 'PICK' ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800/40' :
-                item.type === 'LAB' ? 'text-amber-400 bg-amber-950/60 border-amber-800/40' :
-                item.type === 'JOURNAL' ? 'text-sky-400 bg-sky-950/60 border-sky-800/40' :
-                'text-indigo-400 bg-indigo-950/60 border-indigo-800/40';
+              const typeBadge = 
+                item.type === 'PRODUCT' ? 'text-blue-700 bg-blue-50 border-blue-200' :
+                item.type === 'PICK' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
+                item.type === 'LAB' ? 'text-amber-700 bg-amber-50 border-amber-200' :
+                item.type === 'JOURNAL' ? 'text-purple-700 bg-purple-50 border-purple-200' :
+                'text-indigo-700 bg-indigo-50 border-indigo-200';
 
               return (
                 <div
                   key={item.id}
                   onClick={() => handleSelect(item.url)}
                   onMouseEnter={() => setSelectedIndex(index)}
-                  className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors text-left ${
-                    isSelected ? 'bg-slate-800/90 border border-slate-700' : 'hover:bg-slate-800/50 border border-transparent'
+                  className={`flex items-center justify-between p-3.5 rounded-2xl cursor-pointer transition-all text-left ${
+                    isSelected ? 'bg-slate-100/90 border border-slate-200 shadow-2xs' : 'hover:bg-slate-50 border border-transparent'
                   }`}
                 >
                   <div className="space-y-1 pr-4 min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border ${typeColor}`}>
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${typeBadge}`}>
                         {item.type}
                       </span>
-                      <h4 className="text-xs sm:text-sm font-semibold text-white truncate">
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                         {item.title}
                       </h4>
                     </div>
-                    <p className="text-[11px] text-slate-400 truncate">
+                    <p className="text-[11px] text-slate-500 truncate">
                       {item.subtitle}
                     </p>
                   </div>
-                  <div className="shrink-0 flex items-center text-slate-500">
+                  <div className="shrink-0 flex items-center text-slate-400">
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 </div>
               );
             })
           ) : (
-            <div className="py-12 text-center text-xs text-slate-400 space-y-1">
-              <p>未找到匹配的公开资产。</p>
-              <p className="text-[11px] text-slate-500">
-                可尝试搜索工具名（如 Cursor、n8n）或需求关键词。
+            <div className="py-12 text-center text-xs text-slate-500 space-y-1">
+              <p className="font-semibold text-slate-700">未找到匹配的公开资产</p>
+              <p className="text-[11px] text-slate-400">
+                可尝试搜索工具名（如 Cursor、n8n）或场景关键词。
               </p>
             </div>
           )}
         </div>
 
         {/* Footer shortcuts */}
-        <div className="px-4 py-2 border-t border-slate-800/80 bg-[#090D17] flex items-center justify-between text-[11px] text-slate-500">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">↑</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">↓</kbd>
+        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-mono text-[10px] shadow-2xs">↑</kbd>
+              <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-mono text-[10px] shadow-2xs">↓</kbd>
               <span>导航</span>
             </span>
-            <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">
+            <span className="flex items-center gap-1.5">
+              <kbd className="px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-mono text-[10px] shadow-2xs">
                 <CornerDownLeft className="w-2.5 h-2.5 inline" />
               </kbd>
               <span>打开</span>

@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ArrowRight, 
   ArrowUpRight, 
   Search, 
   Wrench, 
-  FlaskConical, 
-  BookOpen, 
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  Check,
+  ShieldCheck,
+  Sparkles,
+  Plus,
+  Minus,
+  Laptop,
+  Workflow,
+  Boxes,
+  MapPin,
+  Star
 } from 'lucide-react';
 import { Link, useRouter } from '../utils/router';
 import { PRODUCTS, PICKS, ACTIVITY_FEED } from '../data/database';
@@ -16,498 +24,728 @@ export const HomePage: React.FC = () => {
   const { navigate } = useRouter();
   const featuredProduct = PRODUCTS.find((p) => p.family === 'GLOBAL_PRODUCT') || PRODUCTS[0];
   const smallTools = PRODUCTS.filter((p) => p.family === 'SMALL_TOOL');
-  const samplePicks = PICKS.filter((p) => p.featured).slice(0, 3);
+
+  // Quick Finder state in Hero
+  const [quickGoal, setQuickGoal] = useState('coding');
+  const [quickEnv, setQuickEnv] = useState('global');
+  const [activeFaq, setActiveFaq] = useState<number | null>(0);
+
+  const handleQuickSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate('/finder');
+  };
+
+  // Top 3 Picks mapped with colorful photography (matching reference design style)
+  const topPicks = [
+    {
+      ...PICKS.find((p) => p.slug === 'cursor')!,
+      image: '/src/assets/images/card_code_craft_1790959868969.jpg',
+      badge: '日常主力 (Daily Driver)',
+      categoryZh: '编程开发 · AI 编辑器',
+      rating: '5.0',
+      priceZh: '免费试用 / Pro 订阅',
+    },
+    {
+      ...PICKS.find((p) => p.slug === 'n8n')!,
+      image: '/src/assets/images/card_sunset_architecture_1790959809823.jpg',
+      badge: '项目实战 (Used in Project)',
+      categoryZh: '效率自动化 · 自托管中间件',
+      rating: '4.9',
+      priceZh: '开源免费 / 官方云端',
+    },
+    {
+      ...PICKS.find((p) => p.slug === 'obsidian')!,
+      image: '/src/assets/images/card_snow_mountain_1790959826707.jpg',
+      badge: '日常主力 (Daily Driver)',
+      categoryZh: '知识笔记 · 本地优先',
+      rating: '5.0',
+      priceZh: '个人完全免费',
+    },
+  ];
+
+  const faqs = [
+    {
+      q: 'Quinnverse 是什么主体性质？',
+      a: 'Quinnverse 是一个围绕「发现问题 → 找到工具 → 做出工具」不断生长的个人独立产品工作室，主体为个人非经营性网站，已完成工业和信息化部域名信息备案（粤ICP备2024018921号-1）。'
+    },
+    {
+      q: 'Picks 工具库是否接受付费赞助或排名购买？',
+      a: '绝不接受。任何工具都无法通过付费购买收录席位或推荐排名。每一个收录项都必须来自我们在真实业务中的长期依赖或严苛场景实测，且缺点和劝退人群均如实公开。'
+    },
+    {
+      q: '自研产品与轻量小工具的区别是什么？',
+      a: '“有些问题值得成为完整产品。有些问题，一个小工具就够了。” 像海外求职助手 (Job Application Copilot) 涉及跨站点 DOM 抓取与申请进度看板流转，需要独立系统支撑；而听默 (TingMo) 播客或完形填空记忆则专注于用最轻的极简形态解决某个特定的麻烦。'
+    },
+    {
+      q: '如何与 Quinnverse 合作开发原型？',
+      a: '我们接受少量高质量的 AI 原型设计、工作流自动化、Web 独立产品与内部小工具定制。你可以通过「合作交流」提交核心痛点，我们在 48 小时内给予明确可行性评估。'
+    },
+    {
+      q: '商业推广返佣（Affiliate）如何处理？',
+      a: '部分第三方工具链接可能包含官方合作返佣，收益全部用于支持服务器和自研软件的持续开销。返佣关系与实测结论严格解耦，页面上始终提供纯净官方直达链接供自主选择。'
+    }
+  ];
 
   return (
-    <div className="space-y-0">
+    <div className="bg-[#F8FAFC] text-slate-900 overflow-hidden">
       {/* ========================================================================= */}
-      {/* 01 HERO: Full-Bleed Cinematic Studio Backdrop                             */}
+      {/* 01 HERO SECTION (大图展示 + 白底高质感 + 纯中文版)                         */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[92vh] sm:min-h-[94vh] flex flex-col justify-between overflow-hidden border-b border-slate-800 bg-[#080B12]">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/src/assets/images/hero_quinnverse_studio_1790953227180.jpg"
-            alt="Quinnverse Product Studio Workspace"
-            referrerPolicy="no-referrer"
-            className="h-full w-full object-cover object-center scale-105 transform filter brightness-80 contrast-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080B12] via-[#080B12]/65 to-[#080B12]/75" />
-          <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#080B12]/40 to-[#080B12]/90" />
-        </div>
-
-        <div className="relative z-10 mx-auto max-w-5xl px-4 pt-24 pb-16 sm:pt-36 sm:pb-20 my-auto text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-cyan-300 bg-cyan-950/70 border border-cyan-500/30 px-4 py-1.5 rounded-full backdrop-blur-md shadow-lg shadow-cyan-950/40 mb-6 animate-fade-in">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span>QUINNVERSE / INDEPENDENT PRODUCT STUDIO</span>
-          </div>
-
-          <div className="space-y-4 max-w-4xl">
-            <h1 className="font-display text-5xl sm:text-7xl md:text-8xl font-black tracking-tight text-white leading-[1.05] drop-shadow-md">
-              Find better tools.
-              <br />
-              Build what’s missing.
-            </h1>
-            <p className="text-xl sm:text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-cyan-100 to-sky-300 pt-2">
-              发现真正好用的工具。找不到合适的，就自己做一个。
-            </p>
-          </div>
-
-          <p className="mt-6 text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-2xl text-balance drop-shadow-sm">
-            从具体痛点到独立产品——记录工具如何被发现、实测、做出来，再交付到真实场景中。这里只收录深度用过的东西，也只制造真正缺少的软件。
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/products"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-xl shadow-xl shadow-cyan-950/60 transition-all active:scale-98"
-            >
-              <Wrench className="w-4 h-4 text-slate-950" />
-              <span>Explore Products</span>
-            </Link>
-
-            <Link
-              to="/picks"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-cyan-500/50 rounded-xl backdrop-blur-md transition-all shadow-lg"
-            >
-              <Search className="w-4 h-4 text-cyan-400" />
-              <span>Explore Picks</span>
-            </Link>
-
-            <Link
-              to="/work-with-us"
-              className="inline-flex items-center justify-center gap-1.5 px-5 py-3.5 text-sm font-semibold text-slate-400 hover:text-white transition-colors"
-            >
-              <span>Work with Quinnverse</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-
-        <div className="relative z-10 border-t border-slate-800/80 bg-slate-950/60 backdrop-blur-md py-4">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 flex items-center justify-between text-xs text-slate-400">
-            <div className="flex items-center gap-6">
-              <span>01 / DISCOVER 发现</span>
-              <span className="hidden sm:inline">02 / TEST 实测</span>
-              <span className="hidden sm:inline">03 / BUILD 制造</span>
-              <span className="hidden sm:inline">04 / SHARE 沉淀</span>
+      <section className="relative pt-10 pb-20 md:pt-14 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center text-left">
+          {/* Left Column: 标题与行动点 */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* Kicker Pill */}
+            <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-800 bg-white border border-slate-200/90 px-4 py-1.5 rounded-full shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-blue-600" />
+              <span>独立产品工作室 · 专注真实业务痛点</span>
             </div>
-            <a
-              href="#start-here"
-              className="inline-flex items-center gap-1 text-slate-300 hover:text-cyan-300 transition-colors"
-            >
-              <span>向下探索</span>
-              <ChevronDown className="w-4 h-4 text-cyan-400 animate-bounce" />
-            </a>
+
+            {/* 主标题 */}
+            <div className="space-y-3">
+              <h1 className="font-display text-5xl sm:text-7xl lg:text-7.5xl font-black tracking-tight text-slate-950 leading-[1.08]">
+                发现真正好用的工具。
+                <br />
+                <span className="text-slate-700">找不到合适的，</span>
+                <br />
+                <span className="text-blue-600">就自己做一个。</span>
+              </h1>
+              <div className="text-xs sm:text-sm font-mono text-slate-400 font-semibold tracking-wide">
+                QUINNVERSE / FIND BETTER TOOLS. BUILD WHAT'S MISSING.
+              </div>
+            </div>
+
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+              记录工具如何被发现、实测、做出来，再交付到真实场景中。这里只收录深度用过的软件，也只制造真正缺少的工具。
+            </p>
+
+            {/* 行动按钮 */}
+            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-2 px-7 py-3.5 text-xs sm:text-sm font-bold text-white bg-slate-900 hover:bg-blue-600 rounded-full shadow-md hover:shadow-lg transition-all active:scale-98"
+              >
+                <Wrench className="w-4 h-4 text-slate-200" />
+                <span>探索自研产品</span>
+              </Link>
+
+              <Link
+                to="/picks"
+                className="inline-flex items-center gap-2 px-7 py-3.5 text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-full shadow-xs hover:shadow-sm transition-all"
+              >
+                <Search className="w-4 h-4 text-slate-600" />
+                <span>浏览实测工具</span>
+              </Link>
+
+              <Link
+                to="/work-with-us"
+                className="inline-flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-950 transition-colors"
+              >
+                <span>与工作室交流</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {/* 核心指标栏 */}
+            <div className="pt-8 border-t border-slate-200/80 grid grid-cols-3 gap-6 max-w-lg">
+              <div>
+                <div className="font-display text-2xl sm:text-3xl font-black text-slate-900">4 款</div>
+                <div className="text-xs text-slate-500 font-semibold mt-0.5">自研独立软件</div>
+              </div>
+              <div className="border-l border-slate-200 pl-6">
+                <div className="font-display text-2xl sm:text-3xl font-black text-slate-900">100%</div>
+                <div className="text-xs text-slate-500 font-semibold mt-0.5">确定性工程实测</div>
+              </div>
+              <div className="border-l border-slate-200 pl-6">
+                <div className="font-display text-2xl sm:text-3xl font-black text-slate-900">零</div>
+                <div className="text-xs text-slate-500 font-semibold mt-0.5">AI 营销套话</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: 丰富的色彩视觉大图 (如同示例图中的视觉中心) */}
+          <div className="lg:col-span-5 relative">
+            <div className="relative mx-auto max-w-md lg:max-w-none rounded-3xl bg-white border border-slate-200/90 p-3 shadow-xl space-y-4 overflow-hidden">
+              {/* 真实生动的高清设计工作室摄影大图 */}
+              <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden shadow-inner">
+                <img
+                  src="/src/assets/images/hero_studio_showcase_1790959723676.jpg"
+                  alt="Quinnverse Product Studio Workspace"
+                  className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute top-3.5 left-3.5 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-slate-900 shadow-sm flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>正在运行：Job OS</span>
+                </div>
+                <div className="absolute bottom-3.5 left-3.5 right-3.5 bg-slate-900/85 backdrop-blur-md p-3 rounded-xl text-white text-xs flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="font-bold text-white">海外求职助手 (Job Application Copilot)</div>
+                    <div className="text-[11px] text-slate-300">确定性 DOM 解析 · 零 AI 虚构材料</div>
+                  </div>
+                  <Link
+                    to="/products/job-application-copilot"
+                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] whitespace-nowrap"
+                  >
+                    查看详情
+                  </Link>
+                </div>
+              </div>
+
+              {/* 3 个轻量自用小工具标签条 */}
+              <div className="px-2 py-1 flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-500">还有自用小工具：</span>
+                <div className="flex items-center gap-2">
+                  <a href="https://tingmo.quinnverse.tech" target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors">
+                    听默
+                  </a>
+                  <a href="https://weread.quinnverse.tech" target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors">
+                    微信读书
+                  </a>
+                  <a href="https://clozerecitation.quinnverse.tech" target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors">
+                    完形填空
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* INTERACTIVE STUDIO QUICK FINDER (对应参考图中的搜索卡片)                  */}
+        {/* ========================================================================= */}
+        <div className="mt-14 sm:mt-20">
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-xl text-left">
+            {/* Top Bar Tabs */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-4 mb-4 text-xs font-bold">
+              <button className="px-4 py-2 rounded-full bg-slate-900 text-white">
+                需求诊断与推荐
+              </button>
+              <Link to="/products" className="px-4 py-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                自研产品矩阵
+              </Link>
+              <Link to="/picks" className="px-4 py-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                工具实测库 (Picks)
+              </Link>
+              <Link to="/resources" className="px-4 py-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                实用手册与配方
+              </Link>
+            </div>
+
+            {/* Filter Inputs Grid */}
+            <form onSubmit={handleQuickSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
+              <div className="lg:col-span-4 space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  01. 核心任务场景
+                </label>
+                <select
+                  value={quickGoal}
+                  onChange={(e) => setQuickGoal(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-900"
+                >
+                  <option value="coding">代码重构与全栈开发 (Cursor / Gemini)</option>
+                  <option value="job">海外职位捕获与表单自动填写 (Job OS)</option>
+                  <option value="automation">跨系统工作流自动化 (n8n)</option>
+                  <option value="notes">本地纯文本知识管理 (Obsidian)</option>
+                </select>
+              </div>
+
+              <div className="lg:col-span-3 space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  02. 网络访问与隐私
+                </label>
+                <select
+                  value={quickEnv}
+                  onChange={(e) => setQuickEnv(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-900"
+                >
+                  <option value="domestic">必须支持国内直连使用</option>
+                  <option value="global">海外网络畅通 (追求国际前沿)</option>
+                  <option value="local">数据完全本地化 (零云端出境)</option>
+                </select>
+              </div>
+
+              <div className="lg:col-span-3 space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  03. 筛选逻辑
+                </label>
+                <div className="text-xs sm:text-sm font-bold text-slate-700 py-2.5 px-4 bg-slate-50/70 rounded-2xl border border-slate-200 truncate">
+                  确定性筛选 · 输出 2-3 个实测解
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 pt-1 sm:pt-4">
+                <button
+                  type="submit"
+                  className="w-full inline-flex items-center justify-center gap-1.5 px-5 py-3 text-xs sm:text-sm font-bold text-white bg-slate-900 hover:bg-blue-600 rounded-full shadow-md transition-all active:scale-98 cursor-pointer"
+                >
+                  <span>开始匹配工具</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 02 START HERE: Four Core Navigation Portals                              */}
+      {/* 02 WHO WE ARE (对应参考图中的照片 Bento 组合 + 4 特性方块)                 */}
       {/* ========================================================================= */}
-      <section id="start-here" className="py-20 border-b border-slate-800/80 bg-[#0A0E18]">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl text-left space-y-2 mb-10">
-            <div className="text-xs font-mono font-semibold text-cyan-400 tracking-wider">
-              START HERE
+      <section className="py-20 bg-white border-y border-slate-200/80 text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Story & 4 Feature Boxes */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="text-xs font-bold tracking-wider text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full inline-block">
+                关于我们 / 自研初衷
+              </div>
+
+              <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight">
+                为真实问题而写的独立软件
+              </h2>
+
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                有些问题值得成为完整产品。有些问题，一个小工具就够了。Quinnverse 绝不为了融资故事盲目扩张，坚持用朴素、确定性的代码解决具体的现实麻烦。
+              </p>
+
+              {/* 4 Feature Boxes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
+                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
+                    <Workflow className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="text-xs font-bold text-slate-900">确定性工程优先</div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    核心流程基于 DOM 解析与表单匹配，非大模型不可控黑盒。
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
+                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="text-xs font-bold text-slate-900">拒绝虚构履历</div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    填报信息均来自本人核对，杜绝一键代投盲投。
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
+                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
+                    <Boxes className="w-4 h-4 text-amber-600" />
+                  </div>
+                  <div className="text-xs font-bold text-slate-900">真实深度实测</div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    每一个收录项均来自高频实战，如实公开缺陷与避坑。
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
+                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
+                    <Laptop className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div className="text-xs font-bold text-slate-900">极简自用小工具</div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    听默、微信读书看板与完形填空均独立上线，开箱即用。
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  to="/products"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold shadow-sm transition-all"
+                >
+                  <span>浏览全部自研产品</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              从这里开始了解 Quinnverse 的工作
+
+            {/* Right: 色彩丰富的 3 连照片 Bento (完全对齐参考图中的生动色彩！) */}
+            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+              {/* 左侧大图：清澈翠绿瀑布 */}
+              <div className="relative rounded-3xl overflow-hidden shadow-md group h-80 sm:h-96">
+                <img
+                  src="/src/assets/images/card_nature_waterfall_1790959793831.jpg"
+                  alt="Scenic Forest Waterfall"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 text-white text-xs space-y-1">
+                  <div className="font-bold text-sm">自研小工具：听默 (TingMo)</div>
+                  <div className="text-[11px] text-slate-200">户外行走，也能听课复习</div>
+                </div>
+              </div>
+
+              {/* 右侧两张堆叠图：暖金落日建筑 + 碧蓝海滩 */}
+              <div className="flex flex-col gap-4">
+                <div className="relative rounded-3xl overflow-hidden shadow-md group h-38 sm:h-46">
+                  <img
+                    src="/src/assets/images/card_sunset_architecture_1790959809823.jpg"
+                    alt="Warm European Architecture Sunset"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-3 text-white text-xs">
+                    <span className="font-bold text-xs">微信读书数据看板</span>
+                  </div>
+                </div>
+
+                <div className="relative rounded-3xl overflow-hidden shadow-md group h-38 sm:h-46">
+                  <img
+                    src="/src/assets/images/card_tropical_beach_1790959840986.jpg"
+                    alt="Turquoise Tropical Beach"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-3 text-white text-xs">
+                    <span className="font-bold text-xs">完形填空主动回忆</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 03 TOP PICKS CARDS (每张卡片顶部带高清大图，对齐参考图中的 Top Travel Spots) */}
+      {/* ========================================================================= */}
+      <section className="py-20 md:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
+        <div className="max-w-2xl mx-auto space-y-3">
+          <div className="inline-block text-xs font-bold text-slate-800 bg-slate-100 border border-slate-200 px-3.5 py-1 rounded-full">
+            精选深度实测库
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
+            我们在真实项目中高频依赖的工具
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl mx-auto">
+            真的用过，才会推荐。每一款收录工具都包含我们在真实项目中的使用证据与明确的局限。
+          </p>
+        </div>
+
+        {/* Card Grid with High-Res Image Header (完全对齐参考图2) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          {topPicks.map((pick) => (
+            <div
+              key={pick.id}
+              className="rounded-3xl border border-slate-200/90 bg-white overflow-hidden shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group"
+            >
+              {/* 顶部色彩丰富的高清摄影大图 */}
+              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100">
+                <img
+                  src={pick.image}
+                  alt={pick.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-bold text-slate-900 shadow-xs">
+                  {pick.badge}
+                </div>
+                <div className="absolute bottom-3 left-3 text-white text-xs drop-shadow-md font-semibold flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-blue-400" />
+                  <span>{pick.categoryZh}</span>
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-6 space-y-3.5 flex-1">
+                <h3 className="font-display text-2xl font-bold text-slate-950">
+                  {pick.name}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                  {pick.summary}
+                </p>
+
+                <div className="pt-2 border-t border-slate-100 text-xs text-slate-600">
+                  <span className="font-bold text-slate-900">实测结论：</span>
+                  <p className="mt-1 line-clamp-2 leading-relaxed text-slate-600">
+                    {pick.whatWeFound}
+                  </p>
+                </div>
+              </div>
+
+              {/* Card Bottom Bar (Rating + Price + Pill Button) */}
+              <div className="p-6 pt-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div>
+                  <div className="text-xs font-bold text-slate-900 flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span>★ {pick.rating} (实战验证)</span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-medium">
+                    {pick.priceZh}
+                  </div>
+                </div>
+
+                <Link
+                  to={`/picks/${pick.slug}`}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-2xs"
+                >
+                  <span>阅读实测</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <Link
+            to="/picks"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white border border-slate-300 hover:border-slate-900 text-slate-900 text-xs font-bold transition-colors shadow-2xs"
+          >
+            <span>浏览全部实测库 (View All Picks)</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 04 SERVICES GRID (对应参考图中的 4 栏定制方块)                             */}
+      {/* ========================================================================= */}
+      <section className="py-20 bg-white border-y border-slate-200/80 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="max-w-2xl mx-auto space-y-3">
+            <div className="inline-block text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full">
+              工作室定制服务
+            </div>
+            <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
+              为具体业务卡点量身定制的研发能力
             </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl mx-auto">
+              拒绝传统外包的层层堆叠。针对明确具体的业务卡点，快速交付跑通全链路的可运行第一版。
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-            <Link
-              to="/products"
-              className="group rounded-2xl border border-slate-800/90 bg-[#0C1220] p-6 hover:border-cyan-500/50 hover:bg-[#0F1626] transition-all flex flex-col justify-between shadow-sm"
-            >
-              <div className="space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-cyan-950/70 border border-cyan-800/50 flex items-center justify-center text-cyan-400">
-                  <Wrench className="w-4 h-4" />
-                </div>
-                <div className="text-xs font-mono text-cyan-400 font-semibold">BUILT BY QUINNVERSE</div>
-                <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">
-                  自己做的。
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  从一个真实痛点出发，最终打磨成可以稳定交付给别人使用的独立软件。
-                </p>
+            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
+                <Sparkles className="w-5 h-5 text-blue-600" />
               </div>
-              <div className="mt-6 pt-4 border-t border-slate-800 flex items-center text-xs font-semibold text-cyan-400">
-                <span>Explore Products →</span>
-              </div>
-            </Link>
-
-            <Link
-              to="/picks"
-              className="group rounded-2xl border border-slate-800/90 bg-[#0C1220] p-6 hover:border-cyan-500/50 hover:bg-[#0F1626] transition-all flex flex-col justify-between shadow-sm"
-            >
-              <div className="space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-950/70 border border-emerald-800/50 flex items-center justify-center text-emerald-400">
-                  <Search className="w-4 h-4" />
-                </div>
-                <div className="text-xs font-mono text-emerald-400 font-semibold">TESTED & RECOMMENDED</div>
-                <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">
-                  真的用过，才会推荐。
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  不是海量采集的导航站。每一个收录项都有实际使用证据、适用边界与明确劝退。
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800 flex items-center text-xs font-semibold text-emerald-400">
-                <span>Explore Picks →</span>
-              </div>
-            </Link>
-
-            <Link
-              to="/lab"
-              className="group rounded-2xl border border-slate-800/90 bg-[#0C1220] p-6 hover:border-cyan-500/50 hover:bg-[#0F1626] transition-all flex flex-col justify-between shadow-sm"
-            >
-              <div className="space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-amber-950/70 border border-amber-800/50 flex items-center justify-center text-amber-400">
-                  <FlaskConical className="w-4 h-4" />
-                </div>
-                <div className="text-xs font-mono text-amber-400 font-semibold">EXPERIMENTS IN PROGRESS</div>
-                <h3 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
-                  正在进行的实验。
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  不一定都能成为正式产品，但每一个实验都真实跑过代码与流程，记录失败与收获。
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800 flex items-center text-xs font-semibold text-amber-400">
-                <span>Enter the Lab →</span>
-              </div>
-            </Link>
-
-            <Link
-              to="/journal"
-              className="group rounded-2xl border border-slate-800/90 bg-[#0C1220] p-6 hover:border-cyan-500/50 hover:bg-[#0F1626] transition-all flex flex-col justify-between shadow-sm"
-            >
-              <div className="space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-sky-950/70 border border-sky-800/50 flex items-center justify-center text-sky-400">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-                <div className="text-xs font-mono text-sky-400 font-semibold">FIELD NOTES & RESOURCES</div>
-                <h3 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
-                  把过程写下来。
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  工具深度实测复盘、Build Log 与拿走就能直接使用的图表方法速查手册。
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-800 flex items-center text-xs font-semibold text-sky-400">
-                <span>Read Journal →</span>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 03 FEATURED PRODUCT: Job Application Copilot / Job OS                     */}
-      {/* ========================================================================= */}
-      <section className="py-20 border-b border-slate-800/80 bg-[#080B12]">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 text-left">
-            <div>
-              <div className="text-xs font-mono font-semibold text-cyan-400 tracking-wider">
-                FEATURED PRODUCT
-              </div>
-              <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-white tracking-tight mt-1">
-                {featuredProduct.name}
-              </h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-emerald-400 font-mono font-semibold bg-emerald-950/60 border border-emerald-800/50 px-2.5 py-1 rounded">
-                Stage: {featuredProduct.stage}
-              </span>
-              <span className="text-xs text-slate-400 font-mono">Chrome Extension + Web Workspace</span>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-[#0C1220] p-6 sm:p-10 shadow-2xl text-left">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-7 space-y-6">
-                <p className="text-base sm:text-lg font-semibold text-cyan-200">
-                  {featuredProduct.tagline}
-                </p>
-
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  {featuredProduct.summary}
-                </p>
-
-                <div className="space-y-2 pt-2">
-                  <div className="text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">
-                    确定性工程原则 (Deterministic Principles)
-                  </div>
-                  <ul className="space-y-2">
-                    {featuredProduct.principles.map((pri, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-300">
-                        <span className="text-cyan-400 font-bold">✓</span>
-                        <span>{pri}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center gap-4">
-                  <Link
-                    to={`/products/${featuredProduct.slug}`}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-sm transition-colors"
-                  >
-                    <span>查看架构与内测申请</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                  <span className="text-xs text-slate-500 font-mono">
-                    {featuredProduct.independentSiteStatus}
-                  </span>
-                </div>
-              </div>
-
-              <div className="lg:col-span-5 bg-[#080B12] rounded-xl border border-slate-800 p-5 space-y-4">
-                <div className="text-xs font-mono font-semibold text-slate-400 uppercase">
-                  核心处理流程 (The Workflow)
-                </div>
-                <div className="space-y-3">
-                  {featuredProduct.workflow?.map((step) => (
-                    <div key={step.step} className="flex items-start gap-3 p-3 rounded-lg bg-[#0C1220] border border-slate-800/80">
-                      <span className="font-mono text-xs font-bold text-cyan-400 mt-0.5">{step.step}</span>
-                      <div>
-                        <div className="text-xs font-bold text-white">{step.title}</div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">{step.desc}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 rounded-xl border border-slate-800/80 bg-[#090D17] p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-left">
-            <div>
-              <span className="text-xs font-mono text-slate-500 uppercase tracking-wider">Also from Quinnverse</span>
-              <div className="text-xs text-slate-300 font-medium mt-1">
-                有些问题值得成为完整产品。有些问题，一个小工具就够了。
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 text-xs">
-              {smallTools.map((t) => (
-                <a
-                  key={t.id}
-                  href={t.externalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors flex items-center gap-1.5"
-                >
-                  <span>{t.name}</span>
-                  <ExternalLink className="w-3 h-3 text-cyan-400" />
-                </a>
-              ))}
-              <Link to="/products" className="text-cyan-400 hover:text-cyan-300 font-semibold px-2 py-1.5">
-                浏览全部产品 →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 04 PICKS + FINDER: Core Discovery Engine                                  */}
-      {/* ========================================================================= */}
-      <section className="py-20 border-b border-slate-800/80 bg-[#0A0E18]">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl text-left space-y-3 mb-10">
-            <div className="text-xs font-mono font-semibold text-emerald-400 tracking-wider">
-              TESTED & RECOMMENDED
-            </div>
-            <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              真的用过，才会放在这里。
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-              Quinnverse Picks 不是采集数千个 AI 外链的导航站，不按广告返佣调整排名，也不使用廉价的五星好评。这里只有在真实开发与业务流程中长期使用、或经过系统性测试的工具。
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-            {samplePicks.map((pick) => (
-              <Link
-                key={pick.id}
-                to={`/picks/${pick.slug}`}
-                className="group rounded-2xl border border-slate-800 bg-[#0C1220] p-6 hover:border-emerald-500/50 hover:bg-[#0E1626] transition-all flex flex-col justify-between shadow-sm"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400 font-medium">{pick.category}</span>
-                    <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded">
-                      {pick.evidenceLevel}
-                    </span>
-                  </div>
-
-                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">
-                    {pick.name}
-                  </h3>
-
-                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">
-                    {pick.summary}
-                  </p>
-
-                  <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400">
-                    <span className="text-slate-300 font-semibold">实测发现：</span>
-                    <p className="mt-0.5 line-clamp-2">{pick.whatWeFound}</p>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-semibold text-emerald-400">
-                  <span>查看实测结论与避坑 →</span>
-                  <span className="text-slate-500 font-mono text-[10px]">Tested: {pick.lastTested}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-8 rounded-2xl border border-cyan-900/50 bg-gradient-to-r from-cyan-950/40 via-slate-900/80 to-slate-900/40 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-left">
-            <div className="space-y-1">
-              <div className="text-xs font-mono font-bold text-cyan-300">
-                QUINNVERSE FINDER · 确定性需求诊断
-              </div>
-              <h3 className="text-base font-bold text-white">
-                面对海量工具不知如何选？告诉 Quinnverse 你想解决什么。
-              </h3>
-              <p className="text-xs text-slate-400">
-                通过 4 道确定性判断题（任务类型、技术偏好、网络与预算），从实测库中诊断出最适合你的 2~3 个选项。
+              <h3 className="font-bold text-base text-slate-950">AI 产品原型交付</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                从模糊的想法出发，梳理出确定性数据流，打造可交互、已跑通数据链路的真实 MVP。
               </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                to="/finder"
-                className="px-5 py-2.5 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-sm whitespace-nowrap"
-              >
-                打开 Quinnverse Finder →
-              </Link>
-              <Link
-                to="/picks"
-                className="px-4 py-2.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/90 rounded-lg whitespace-nowrap"
-              >
-                浏览全部 Picks
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 05 FROM QUINNVERSE: Dynamic Editorial Feed                                */}
-      {/* ========================================================================= */}
-      <section className="py-20 border-b border-slate-800/80 bg-[#080B12]">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl text-left space-y-2 mb-10">
-            <div className="text-xs font-mono font-semibold text-cyan-400 tracking-wider">
-              FROM QUINNVERSE
-            </div>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              正在发生的事情
-            </h2>
-            <p className="text-xs text-slate-400">
-              按时间顺序记录的产品构建更新、实测补充、公开实验与深度手记。
-            </p>
-          </div>
-
-          <div className="space-y-3 text-left">
-            {ACTIVITY_FEED.map((item) => {
-              const badgeStyle = 
-                item.type === 'PRODUCT' ? 'text-cyan-400 bg-cyan-950/60 border-cyan-800/50' :
-                item.type === 'PICK' ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800/50' :
-                item.type === 'LAB' ? 'text-amber-400 bg-amber-950/60 border-amber-800/50' :
-                item.type === 'JOURNAL' ? 'text-sky-400 bg-sky-950/60 border-sky-800/50' :
-                'text-indigo-400 bg-indigo-950/60 border-indigo-800/50';
-
-              return (
-                <Link
-                  key={item.id}
-                  to={item.link}
-                  className="group rounded-xl border border-slate-800 bg-[#0C1220] p-4 hover:border-slate-700 hover:bg-[#0E1526] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
-                >
-                  <div className="flex items-start sm:items-center gap-3">
-                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${badgeStyle} shrink-0`}>
-                      {item.type}
-                    </span>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
-                        {item.title}
-                      </h4>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {item.note}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-500 shrink-0 font-mono">
-                    <span>{item.date}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-1 group-hover:text-cyan-400 transition-all" />
-                  </div>
+              <div className="pt-2">
+                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-blue-600 inline-flex items-center gap-1">
+                  了解服务详情 ↗
                 </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+              </div>
+            </div>
 
-      {/* ========================================================================= */}
-      {/* 06 WORK WITH QUINNVERSE: Studio Collaboration Channel                     */}
-      {/* ========================================================================= */}
-      <section className="py-20 border-b border-slate-800/80 bg-[#0A0E18]">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl text-left space-y-3 mb-10">
-            <div className="text-xs font-mono font-semibold text-cyan-400 tracking-wider">
-              STUDIO COLLABORATION
+            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
+                <Workflow className="w-5 h-5 text-emerald-600" />
+              </div>
+              <h3 className="font-bold text-base text-slate-950">自动化工作流与 Agent</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                针对小团队跨系统数据搬运的痛点，搭建轻量、低维护成本的自动化管线与私有 Agent。
+              </p>
+              <div className="pt-2">
+                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-emerald-600 inline-flex items-center gap-1">
+                  了解服务详情 ↗
+                </Link>
+              </div>
             </div>
-            <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Have something worth building?
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-              Quinnverse 保持着对真实问题的敏锐度，同时接受少量高质量的产品与自动化原型开发合作。如果你面对一个痛点明确但市面上缺乏合适工具的场景，可以一起把它做成一个稳定运行的第一版。
-            </p>
+
+            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
+                <Laptop className="w-5 h-5 text-purple-600" />
+              </div>
+              <h3 className="font-bold text-base text-slate-950">现代独立 Web 软件</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                现代极客审美的独立 Web 软件与交互前端，高信息密度、克制留白与灵敏流畅响应。
+              </p>
+              <div className="pt-2">
+                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-purple-600 inline-flex items-center gap-1">
+                  了解服务详情 ↗
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
+                <Boxes className="w-5 h-5 text-amber-600" />
+              </div>
+              <h3 className="font-bold text-base text-slate-950">团队私有内部小工具</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                针对特定业务卡点定制的小型私有软件，单体运行，无外部依赖，用完即走。
+              </p>
+              <div className="pt-2">
+                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-amber-600 inline-flex items-center gap-1">
+                  了解服务详情 ↗
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left mb-10">
-            <div className="rounded-xl border border-slate-800 bg-[#0C1220] p-5 space-y-2">
-              <div className="text-xs font-bold text-white">AI Product Prototype</div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                从模糊业务构想，梳理出确定性数据流，打造可交互、已跑通数据链路的真实 MVP。
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-800 bg-[#0C1220] p-5 space-y-2">
-              <div className="text-xs font-bold text-white">Agent & Automation</div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                面向团队卡点的工作流自动化管道与自托管轻量 Agent，消除繁琐的手工搬运。
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-800 bg-[#0C1220] p-5 space-y-2">
-              <div className="text-xs font-bold text-white">Web Product</div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                现代极客审美的独立 Web 软件与交互前端，高信息密度、克制留白与流畅响应。
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-800 bg-[#0C1220] p-5 space-y-2">
-              <div className="text-xs font-bold text-white">Internal Tool</div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                针对小团队特定业务卡点定制的小型私有软件，单体运行，无外部依赖。
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-2xl border border-slate-800 bg-[#0C1220] text-left">
-            <div>
-              <div className="text-sm font-bold text-white">准备好聊聊你的具体痛点了吗？</div>
-              <div className="text-xs text-slate-400 mt-0.5">告诉我们你面对的业务卡点与期望形态，48 小时内给予明确可行性反馈。</div>
-            </div>
+          <div>
             <Link
               to="/work-with-us"
-              className="px-6 py-2.5 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 rounded-lg shadow-sm whitespace-nowrap transition-colors"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold shadow-sm transition-all"
             >
-              Start a conversation (开始交流) →
+              <span>开启一次真实交流 (Start a conversation)</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 05 ACTIVITY TIMELINE (动态更新流)                                         */}
+      {/* ========================================================================= */}
+      <section className="py-20 md:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
+        <div className="max-w-2xl mx-auto space-y-3">
+          <div className="inline-block text-xs font-bold text-slate-800 bg-slate-100 border border-slate-200 px-3.5 py-1 rounded-full">
+            最新动态与手记
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
+            正在发生的事情
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            按时间顺序记录的产品构建更新、实测补充、公开实验与深度手记。
+          </p>
+        </div>
+
+        {/* Feed Cards List */}
+        <div className="max-w-3xl mx-auto space-y-4 text-left">
+          {ACTIVITY_FEED.map((item) => {
+            const badgeClass =
+              item.type === 'PRODUCT' ? 'text-blue-700 bg-blue-50 border-blue-200' :
+              item.type === 'PICK' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
+              item.type === 'LAB' ? 'text-amber-700 bg-amber-50 border-amber-200' :
+              item.type === 'JOURNAL' ? 'text-purple-700 bg-purple-50 border-purple-200' :
+              'text-indigo-700 bg-indigo-50 border-indigo-200';
+
+            const typeZh =
+              item.type === 'PRODUCT' ? '自研产品' :
+              item.type === 'PICK' ? '工具实测' :
+              item.type === 'LAB' ? '前沿实验' :
+              item.type === 'JOURNAL' ? '深度手记' : '实用手册';
+
+            return (
+              <Link
+                key={item.id}
+                to={item.link}
+                className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-2xl border border-slate-200/90 bg-white hover:border-slate-400 hover:shadow-md transition-all gap-4 shadow-2xs"
+              >
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${badgeClass} shrink-0`}>
+                    {typeZh}
+                  </span>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-950 group-hover:text-blue-600 transition-colors">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                      {item.note}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs text-slate-400 font-mono shrink-0">
+                  <span>{item.date}</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-1 group-hover:text-slate-900 transition-all" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 06 替换“突兀黑块”：生动温暖的高级工作室横幅 (CTA Banner)                     */}
+      {/* ========================================================================= */}
+      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl border border-slate-200/90 bg-white shadow-xl overflow-hidden text-left relative">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-center">
+            {/* 左侧文案与表单出口 */}
+            <div className="lg:col-span-7 p-8 sm:p-14 space-y-5">
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full inline-block">
+                开启一次真实合作
+              </span>
+              <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight">
+                有真正值得做成软件的想法？
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+                无论是高频卡手的业务流程自动化，还是想在两周内验证一个真实的 AI 原型。我们只做确定性、有事实依据的交付。
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-4">
+                <Link
+                  to="/work-with-us"
+                  className="px-7 py-3.5 rounded-full bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs sm:text-sm transition-all shadow-md active:scale-98"
+                >
+                  开始交流 (48小时内答复) →
+                </Link>
+                <Link
+                  to="/contact"
+                  className="px-6 py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs sm:text-sm transition-colors"
+                >
+                  反馈或自荐好工具
+                </Link>
+              </div>
+            </div>
+
+            {/* 右侧：生动、温暖、阳光倾泻的高级摄影大图 (彻底消除突兀黑块！) */}
+            <div className="lg:col-span-5 h-72 lg:h-full min-h-[320px] relative overflow-hidden bg-slate-100">
+              <img
+                src="/src/assets/images/cta_creative_sunlight_1790959855015.jpg"
+                alt="Creative Studio Sunlight Table"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 lg:bg-gradient-to-r lg:from-white/30 lg:to-transparent" />
+              <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-slate-200 text-slate-900 text-center">
+                <div className="text-2xl font-black font-display text-blue-600">48h</div>
+                <div className="text-[10px] font-bold text-slate-600">可行性技术答复</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 07 FAQ ACCORDION (常见问题与解答)                                         */}
+      {/* ========================================================================= */}
+      <section className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-10">
+        <div className="space-y-3">
+          <div className="inline-block text-xs font-bold text-slate-800 bg-slate-100 border border-slate-200 px-3.5 py-1 rounded-full">
+            常见问题解答
+          </div>
+          <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
+            关于工作室定位与选品逻辑的坦诚答复
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600">
+            不玩公关文字游戏，把真实的规则与原则直接写在明处。
+          </p>
+        </div>
+
+        <div className="space-y-3 text-left">
+          {faqs.map((faq, idx) => {
+            const isOpen = activeFaq === idx;
+            return (
+              <div
+                key={idx}
+                className="rounded-2xl border border-slate-200/90 bg-white overflow-hidden transition-all shadow-2xs"
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveFaq(isOpen ? null : idx)}
+                  className="w-full p-5 sm:p-6 flex items-center justify-between text-left font-bold text-slate-900 text-sm sm:text-base hover:text-blue-600 transition-colors cursor-pointer"
+                >
+                  <span>{faq.q}</span>
+                  <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 ml-4 text-slate-700">
+                    {isOpen ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                  </span>
+                </button>
+
+                {isOpen && (
+                  <div className="px-5 pb-6 sm:px-6 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>
