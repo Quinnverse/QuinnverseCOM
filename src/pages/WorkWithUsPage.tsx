@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Check, AlertTriangle, Send, CheckCircle2 } from 'lucide-react';
-import { Link } from '../utils/router';
-import { STUDIO_SERVICES, SITE_SETTINGS } from '../data/database';
+import { Check, AlertTriangle, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { STUDIO_SERVICES } from '../data/database';
 
 export const WorkWithUsPage: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -9,18 +8,40 @@ export const WorkWithUsPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [direction, setDirection] = useState('AI Product Prototype');
   const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim() || !email.trim()) return;
+    setSubmitting(true);
+    setError('');
 
-    setFormSubmitted(true);
+    try {
+      const response = await fetch('/api/contact-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'work-with-us',
+          name,
+          email,
+          direction,
+          message: description,
+        }),
+      });
+
+      if (!response.ok) throw new Error('提交失败');
+      setFormSubmitted(true);
+    } catch {
+      setError('合作构想暂时没有保存成功，请稍后重试。');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="py-16 sm:py-24 bg-[#F8FAFC] text-left">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-14">
-        {/* Masthead */}
         <div className="space-y-4 border-b border-slate-200 pb-8">
           <div className="inline-block text-xs font-bold font-mono tracking-wider uppercase text-blue-700 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full">
             STUDIO COLLABORATION
@@ -36,7 +57,6 @@ export const WorkWithUsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* 1. What Can Be Built */}
         <div className="space-y-6">
           <div className="text-xs font-mono font-bold text-blue-600 uppercase tracking-wider">
             01 / CAPABILITIES 我们可以帮你的场景
@@ -51,9 +71,7 @@ export const WorkWithUsPage: React.FC = () => {
                   <h3 className="text-lg font-bold text-slate-950">{serv.title}</h3>
                   <p className="text-xs font-bold text-blue-700 mt-1">{serv.tagline}</p>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {serv.description}
-                </p>
+                <p className="text-xs text-slate-600 leading-relaxed">{serv.description}</p>
                 <div className="pt-2 border-t border-slate-100 space-y-1.5 text-xs text-slate-700 font-medium">
                   <div className="font-bold text-slate-400 text-[11px] uppercase tracking-wider">交付范围包括：</div>
                   {serv.deliverables.map((d, i) => (
@@ -71,7 +89,6 @@ export const WorkWithUsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. Fit vs Not a Fit */}
         <div className="space-y-6">
           <div className="text-xs font-mono font-bold text-blue-600 uppercase tracking-wider">
             02 / FIT ASSESSMENT 匹配准则
@@ -83,22 +100,10 @@ export const WorkWithUsPage: React.FC = () => {
                 <span>GOOD FIT (适合找 Quinnverse)</span>
               </div>
               <ul className="space-y-2 text-xs text-slate-800 font-medium">
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-700 font-bold">✓</span>
-                  <span>你的问题非常具体，能用几句话说清实际卡点</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-700 font-bold">✓</span>
-                  <span>需要一个真正能动手把软件端到端做出来的工程师</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-700 font-bold">✓</span>
-                  <span>认可确定性工程逻辑优先于大模型的随机发挥</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-700 font-bold">✓</span>
-                  <span>重视界面的信息密度、呼吸感与极简交互</span>
-                </li>
+                <li className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✓</span><span>你的问题非常具体，能用几句话说清实际卡点</span></li>
+                <li className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✓</span><span>需要一个真正能动手把软件端到端做出来的工程师</span></li>
+                <li className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✓</span><span>认可确定性工程逻辑优先于大模型的随机发挥</span></li>
+                <li className="flex items-start gap-2"><span className="text-emerald-700 font-bold">✓</span><span>重视界面的信息密度、呼吸感与极简交互</span></li>
               </ul>
             </div>
 
@@ -108,28 +113,15 @@ export const WorkWithUsPage: React.FC = () => {
                 <span>NOT A FIT (不适合找 Quinnverse)</span>
               </div>
               <ul className="space-y-2 text-xs text-slate-800 font-medium">
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-700 font-bold">✕</span>
-                  <span>需要数十人驻场的企业级大型 ERP 招投标流程</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-700 font-bold">✕</span>
-                  <span>要求不切实际的“全自动万能大模型代管一切”</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-700 font-bold">✕</span>
-                  <span>希望在几天内盲目套壳拼凑大量劣质廉价页面</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-700 font-bold">✕</span>
-                  <span>只是想要概念 PPT，不想动手验证代码可行性</span>
-                </li>
+                <li className="flex items-start gap-2"><span className="text-rose-700 font-bold">✕</span><span>需要数十人驻场的企业级大型 ERP 招投标流程</span></li>
+                <li className="flex items-start gap-2"><span className="text-rose-700 font-bold">✕</span><span>要求不切实际的“全自动万能大模型代管一切”</span></li>
+                <li className="flex items-start gap-2"><span className="text-rose-700 font-bold">✕</span><span>希望在几天内盲目套壳拼凑大量劣质廉价页面</span></li>
+                <li className="flex items-start gap-2"><span className="text-rose-700 font-bold">✕</span><span>只是想要概念 PPT，不想动手验证代码可行性</span></li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* 3. Collaboration Process */}
         <div className="space-y-4">
           <div className="text-xs font-mono font-bold text-blue-600 uppercase tracking-wider">
             03 / HOW IT WORKS 合作流程
@@ -153,7 +145,6 @@ export const WorkWithUsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4. Inquiry Form */}
         <div className="space-y-4">
           <div className="text-xs font-mono font-bold text-blue-600 uppercase tracking-wider">
             04 / START A CONVERSATION 开始交流
@@ -165,7 +156,7 @@ export const WorkWithUsPage: React.FC = () => {
                 <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
                 <h3 className="text-xl font-bold text-slate-950">合作构想已成功送达 Quinnverse</h3>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                  感谢真实具体的反馈。我们将仔细评估技术路径与场景契合度，并在 48 小时内通过邮箱与您联系。
+                  消息已经保存到后台系统，我们会仔细评估技术路径与场景契合度。
                 </p>
               </div>
             ) : (
@@ -222,16 +213,21 @@ export const WorkWithUsPage: React.FC = () => {
                   />
                 </div>
 
-                <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    亦可通过官方邮箱直接投递：<code className="text-slate-900 font-mono font-bold">{SITE_SETTINGS.contactEmail}</code>
-                  </span>
+                {error && (
+                  <div className="flex items-center gap-2 text-rose-700 bg-rose-50 border border-rose-200 rounded-2xl px-4 py-3">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <div className="pt-2 flex justify-end">
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-1.5 px-7 py-3 text-xs font-bold text-white bg-[#0B132B] hover:bg-black rounded-full shadow-md transition-all cursor-pointer"
+                    disabled={submitting}
+                    className="inline-flex items-center gap-1.5 px-7 py-3 text-xs font-bold text-white bg-[#0B132B] hover:bg-black disabled:opacity-60 rounded-full shadow-md transition-all cursor-pointer"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>发送合作构想</span>
+                    <span>{submitting ? '保存中…' : '发送合作构想'}</span>
                   </button>
                 </div>
               </form>
