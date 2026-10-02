@@ -21,47 +21,49 @@ import { WorkWithUsPage } from './pages/WorkWithUsPage';
 import { ContactPage } from './pages/ContactPage';
 import { DisclosurePage } from './pages/DisclosurePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { localeFromPath, stripLocale } from './i18n/locale';
 
 const AppContent: React.FC = () => {
   const { path } = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
+  const locale = localeFromPath(path);
+  const route = stripLocale(path);
+
   useEffect(() => {
-    let title = path === '/en' ? 'Quinnverse — Independent Product Studio' : 'Quinnverse — 独立产品工作室';
-    if (path.startsWith('/products/')) title = 'Product — Built by Quinnverse';
-    else if (path === '/products') title = 'Products — Built by Quinnverse';
-    else if (path.startsWith('/picks/')) title = '实测与避坑 — Quinnverse Picks';
-    else if (path === '/picks') title = 'Picks 实测工具库 — Quinnverse';
-    else if (path === '/finder') title = 'Quinnverse Finder — 需求诊断与工具筛选';
-    else if (path.startsWith('/lab/')) title = 'Lab 实验详情 — Quinnverse Lab';
-    else if (path === '/lab') title = 'Quinnverse Lab — Build · Experiment · Learn';
-    else if (path.startsWith('/journal/')) title = 'Journal 深度手记 — Quinnverse';
-    else if (path === '/journal') title = 'Quinnverse Journal — Field Notes & Logs';
-    else if (path.startsWith('/resources/')) title = 'Resources — Quinnverse';
-    else if (path === '/resources') title = 'Quinnverse Resources';
-    else if (path === '/about') title = 'About Quinnverse';
-    else if (path === '/work-with-us') title = 'Work with Quinnverse';
-    else if (path === '/contact') title = 'Contact & Feedback — Quinnverse';
-    document.title = title;
-  }, [path]);
+    const en = locale === 'en';
+    const titles: Record<string, string> = {
+      '/': en ? 'Quinnverse — Independent Product Studio' : 'Quinnverse — 独立产品工作室',
+      '/products': en ? 'Products — Quinnverse' : '自研产品 — Quinnverse',
+      '/picks': en ? 'Tested Tools — Quinnverse' : '精选实测 — Quinnverse',
+      '/finder': en ? 'Finder — Quinnverse' : '需求诊断器 — Quinnverse',
+      '/lab': en ? 'Lab — Quinnverse' : '实验室 — Quinnverse',
+      '/about': en ? 'About — Quinnverse' : '关于 Quinnverse',
+      '/contact': en ? 'Contact — Quinnverse' : '联系与反馈 — Quinnverse',
+      '/work-with-us': en ? 'Work with Quinnverse' : '与 Quinnverse 合作',
+      '/disclosure': en ? 'Disclosure — Quinnverse' : '商业透明政策 — Quinnverse',
+    };
+    document.documentElement.lang = en ? 'en' : 'zh-CN';
+    document.title = titles[route] || (en ? 'Quinnverse' : 'Quinnverse — 独立产品工作室');
+  }, [locale, route]);
 
   const renderCurrentPage = () => {
-    if (path === '/' || path === '') return <HomePage />;
-    if (path === '/en') return <EnglishHomePage />;
-    if (path === '/products') return <ProductsPage />;
-    if (path === '/picks') return <PicksPage />;
-    if (path === '/finder') return <FinderPage />;
-    if (path === '/lab') return <LabPage />;
-    if (path === '/journal') return <JournalPage />;
-    if (path === '/resources') return <ResourcesPage />;
-    if (path === '/about') return <AboutPage />;
-    if (path === '/work-with-us') return <WorkWithUsPage />;
-    if (path === '/contact') return <ContactPage />;
-    if (path === '/disclosure') return <DisclosurePage />;
-    if (path.startsWith('/products/')) return <ProductDetailPage slug={path.replace('/products/', '').split('/')[0]} />;
-    if (path.startsWith('/picks/')) return <PickDetailPage slug={path.replace('/picks/', '').split('/')[0]} />;
-    if (path.startsWith('/lab/')) return <LabDetailPage slug={path.replace('/lab/', '').split('/')[0]} />;
-    if (path.startsWith('/journal/')) return <JournalDetailPage slug={path.replace('/journal/', '').split('/')[0]} />;
-    if (path.startsWith('/resources/')) return <ResourceDetailPage slug={path.replace('/resources/', '').split('/')[0]} />;
+    const en = locale === 'en';
+    if (route === '/') return en ? <EnglishHomePage /> : <HomePage />;
+    if (route === '/products') return <ProductsPage locale={locale} />;
+    if (route === '/picks') return <PicksPage locale={locale} />;
+    if (route === '/finder') return <FinderPage />;
+    if (route === '/lab') return <LabPage locale={locale} />;
+    if (route === '/journal') return <JournalPage />;
+    if (route === '/resources') return <ResourcesPage />;
+    if (route === '/about') return <AboutPage />;
+    if (route === '/work-with-us') return <WorkWithUsPage />;
+    if (route === '/contact') return <ContactPage />;
+    if (route === '/disclosure') return <DisclosurePage />;
+    if (route.startsWith('/products/')) return <ProductDetailPage slug={route.replace('/products/', '').split('/')[0]} locale={locale} />;
+    if (route.startsWith('/picks/')) return <PickDetailPage slug={route.replace('/picks/', '').split('/')[0]} />;
+    if (route.startsWith('/lab/')) return <LabDetailPage slug={route.replace('/lab/', '').split('/')[0]} />;
+    if (route.startsWith('/journal/')) return <JournalDetailPage slug={route.replace('/journal/', '').split('/')[0]} />;
+    if (route.startsWith('/resources/')) return <ResourceDetailPage slug={route.replace('/resources/', '').split('/')[0]} />;
     return <NotFoundPage />;
   };
 
