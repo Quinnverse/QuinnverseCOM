@@ -10,10 +10,10 @@ import {
 } from '../types';
 
 export const SITE_SETTINGS: SiteSettings = {
-  icpNumber: '粤ICP备2024018921号-1',
-  contactEmail: 'contact@quinnverse.tech',
+  icpNumber: '浙ICP备2026075936号',
+  contactEmail: 'zhangqiyun2000@163.com',
   githubUrl: 'https://github.com/quinnverse',
-  status: 'Independent Product Studio',
+  status: '个人独立产品工作室',
 };
 
 export const PRODUCTS: ProductItem[] = [
@@ -45,9 +45,9 @@ export const PRODUCTS: ProductItem[] = [
       { step: '04', title: 'Final Review', desc: '求职者人工检查无误后，手动点击提交，保持 100% 真实' },
     ],
     techStack: ['TypeScript', 'Chrome Extension MV3', 'React', 'Node.js', 'PostgreSQL'],
-    previewImage: '/src/assets/images/hero_quinnverse_studio_1790953227180.jpg',
+    previewImage: '',
     independentSiteStatus: '独立出海落地页筹备中 (TBD)',
-    relatedJournal: ['ats-job-workflow'],
+    relatedJournal: ['ai-workflow-specs'],
   },
   {
     id: 'tool-tingmo',
@@ -333,7 +333,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
   {
     id: 'art-building-tingmo',
     slug: 'building-tingmo',
-    title: '把专业课变成博客后，走路也能复习了',
+    title: '把专业课变成播客后，走路也能复习了',
     category: 'BUILD LOG',
     date: '2026-07',
     readTime: '5 分钟',
@@ -349,7 +349,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
 
 这就是独立工具最朴实的价值：不求做大而全的平台，只把一个极其具体的麻烦彻底解决。`,
     tags: ['TingMo', '学习工具', '音频复习', '独立构建'],
-    relatedProducts: ['job-application-copilot'],
+    relatedProducts: ['tingmo'],
   },
   {
     id: 'art-weread-pipeline',

@@ -1,94 +1,126 @@
 import React, { useState, useMemo } from 'react';
-import { BookOpen, ArrowRight, Tag } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from '../utils/router';
 import { JOURNAL_ARTICLES } from '../data/database';
 
+const CATEGORY_LABEL: Record<string, string> = {
+  'BUILD LOG': '构建手记',
+  'ENGINEERING': '工程实践',
+  'CRITIQUE': '批判思考',
+};
+
 export const JournalPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [category, setCategory] = useState('ALL');
 
-  const categories = ['ALL', 'BUILD LOG', 'ENGINEERING', 'CRITIQUE'];
+  const categories = useMemo(() => {
+    const set = new Set(JOURNAL_ARTICLES.map((a) => a.category));
+    return ['ALL', ...Array.from(set)];
+  }, []);
 
-  const filteredArticles = useMemo(() => {
-    if (selectedCategory === 'ALL') return JOURNAL_ARTICLES;
-    return JOURNAL_ARTICLES.filter((a) => a.category === selectedCategory);
-  }, [selectedCategory]);
+  const articles = useMemo(
+    () => (category === 'ALL' ? JOURNAL_ARTICLES : JOURNAL_ARTICLES.filter((a) => a.category === category)),
+    [category]
+  );
+
+  const [lead, ...rest] = articles;
 
   return (
-    <div className="py-16 sm:py-24 bg-[#F8FAFC] text-left">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Header */}
-        <div className="max-w-3xl space-y-3">
-          <div className="inline-block text-xs font-bold font-mono tracking-wider uppercase text-purple-800 bg-purple-50 border border-purple-200 px-3.5 py-1 rounded-full">
-            FIELD NOTES & LOGS
+    <>
+      {/* ============ 页头 ============ */}
+      <section className="band-sm border-b border-line-soft">
+        <div className="container-site">
+          <div className="max-w-3xl">
+            <span className="chip">深度手记</span>
+            <h1 className="mt-6">写了才记得住的东西</h1>
+            <p className="lead mt-6 max-w-2xl">
+              关于独立构建、工具实测复盘和工程约定的长文记录。
+              不追热点，只写自己真做过、真踩过的东西。
+            </p>
           </div>
-          <h1 className="font-display text-4xl sm:text-6xl font-black text-slate-950 tracking-tight">
-            Quinnverse Journal
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            关于独立构建、工具实测复盘、工程切片与去油腻思考的深度长文记录。
-          </p>
-        </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100 rounded-2xl max-w-fit">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
-                selectedCategory === cat
-                  ? 'bg-white text-slate-950 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-950'
-              }`}
-            >
-              {cat === 'ALL' ? '全部文章' : cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Articles List */}
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredArticles.map((art) => (
-              <Link
-                key={art.id}
-                to={`/journal/${art.slug}`}
-                className="group rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-8 hover:border-slate-400 hover:shadow-xl transition-all flex flex-col justify-between shadow-2xs text-left"
+          {/* 分类 */}
+          <div className="mt-10 flex flex-wrap items-center gap-1.5">
+            {categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCategory(c)}
+                className={`chip cursor-pointer transition-colors ${
+                  category === c ? 'chip-brand' : 'hover:border-ink hover:text-ink'
+                }`}
               >
-                <div className="space-y-3.5">
-                  <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-                    <span className="text-purple-700 font-bold bg-purple-50 border border-purple-200 px-2.5 py-0.5 rounded-full">{art.category}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{art.date}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>{art.readTime}</span>
-                  </div>
-
-                  <h3 className="font-display text-xl font-bold text-slate-950 group-hover:text-blue-600 transition-colors leading-snug">
-                    {art.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
-                    {art.excerpt}
-                  </p>
-
-                  <div className="pt-2 flex flex-wrap gap-1.5 text-[11px] text-slate-500">
-                    {art.tags.map((t) => (
-                      <span key={t} className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-medium">
-                        #{t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900 group-hover:text-blue-600">
-                  <span>阅读手记全文 →</span>
-                </div>
-              </Link>
+                {c === 'ALL' ? `全部 ${JOURNAL_ARTICLES.length}` : CATEGORY_LABEL[c] ?? c}
+              </button>
             ))}
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* ============ 头条 + 列表 ============ */}
+      <section className="band-sm">
+        <div className="container-site">
+          {lead && (
+            <Link to={`/journal/${lead.slug}`} className="card card-hover group block p-7 sm:p-10">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="chip chip-brand">{CATEGORY_LABEL[lead.category] ?? lead.category}</span>
+                <span className="data text-faint">{lead.date} · {lead.readTime}</span>
+              </div>
+
+              <h2 className="mt-5 max-w-3xl text-[26px] transition-colors group-hover:text-brand-600 sm:text-[30px]">
+                {lead.title}
+              </h2>
+              <p className="lead mt-4 max-w-2xl">{lead.excerpt}</p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                {lead.tags.map((t) => (
+                  <span key={t} className="chip !text-[11px]">#{t}</span>
+                ))}
+              </div>
+
+              <div className="mt-7 flex items-center gap-1.5 border-t border-line-soft pt-5 text-[13.5px] font-medium text-ink">
+                读全文
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </Link>
+          )}
+
+          {rest.length > 0 && (
+            <>
+              <div className="mt-12 flex items-baseline justify-between border-b border-line pb-3">
+                <span className="text-[13px] text-muted">
+                  另外 <strong className="font-semibold text-ink">{rest.length}</strong> 篇
+                </span>
+              </div>
+
+              <div className="mt-8 grid gap-5 md:grid-cols-2">
+                {rest.map((a) => (
+                  <Link key={a.id} to={`/journal/${a.slug}`} className="card card-hover group flex flex-col p-7">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="chip">{CATEGORY_LABEL[a.category] ?? a.category}</span>
+                      <span className="data text-faint">{a.date} · {a.readTime}</span>
+                    </div>
+
+                    <h3 className="mt-4 !text-[18px] leading-snug transition-colors group-hover:text-brand-600">
+                      {a.title}
+                    </h3>
+                    <p className="mt-3 line-clamp-3 flex-1 text-[13.5px] leading-relaxed text-muted">
+                      {a.excerpt}
+                    </p>
+
+                    <div className="mt-5 flex items-center justify-between border-t border-line-soft pt-4">
+                      <div className="flex flex-wrap gap-1.5">
+                        {a.tags.slice(0, 2).map((t) => (
+                          <span key={t} className="text-[11.5px] text-faint">#{t}</span>
+                        ))}
+                      </div>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-faint transition-colors group-hover:text-brand-600" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+    </>
   );
 };

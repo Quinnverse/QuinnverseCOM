@@ -1,46 +1,187 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Quinnverse Design System — 单一 token 来源
+   页面只使用这里的组件类，不再手写 max-w-* / py-* / 颜色 hex
+   ========================================================================== */
+
+@theme {
+  /* 品牌色：沿用 quinnverse.tech 的 rose 强调色 */
+  --color-brand-50:  #fff1f2;
+  --color-brand-100: #ffe4e6;
+  --color-brand-200: #fecdd3;
+  --color-brand-400: #fb7185;
+  --color-brand-500: #f43f5e;
+  --color-brand-600: #e11d48;
+  --color-brand-700: #be123c;
+  --color-brand-800: #881337;
+
+  /* 语义色：仅 3 个状态色 */
+  --color-ok-50:  #ecfdf5;
+  --color-ok-600: #059669;
+  --color-warn-50: #fffbeb;
+  --color-warn-600: #d97706;
+
+  /* 中性色 */
+  --color-ink:       #1c1d21;
+  --color-ink-soft:  #3f4145;
+  --color-muted:     #6b6e73;
+  --color-faint:     #9ca0a6;
+  --color-line:      #e4e6e9;
+  --color-line-soft: #eef0f2;
+  --color-surface:   #ffffff;
+  --color-surface-2: #f7f8f9;
+  --color-canvas:    #f9fafb;
+
+  --font-display: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body:    'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --radius-card: 6px;
+  --radius-chip: 4px;
+}
+
 @layer base {
-  :root {
-    --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-  }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
 
   body {
     font-family: var(--font-body);
-    background-color: #F8FAFC;
-    color: #0F172A;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-size: 15px;
+    line-height: 1.65;
   }
 
-  h1, h2, h3, h4, .font-display {
+  h1, h2, h3, h4, h5 {
     font-family: var(--font-display);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--color-ink);
+    text-wrap: balance;
   }
 
-  code, pre, .font-mono {
+  /* 固定标题层级，替代满屏的 text-7xl / font-black */
+  h1 { font-size: 44px; font-weight: 800; }
+  h2 { font-size: 32px; font-weight: 700; }
+  h3 { font-size: 20px; font-weight: 600; }
+  h4 { font-size: 16px; font-weight: 600; }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 30px; }
+    h2 { font-size: 24px; }
+    h3 { font-size: 18px; }
+  }
+
+  code, pre, .font-mono { font-family: var(--font-mono); }
+  ::selection { background: var(--color-ink); color: #fff; }
+}
+
+@layer components {
+  /* 唯一页面容器 */
+  .container-site {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+  @media (max-width: 640px) { .container-site { padding-inline: 16px; } }
+
+  /* 区块节奏：只允许两档 */
+  .band    { padding-block: 96px; }
+  .band-sm { padding-block: 64px; }
+  .band-alt { background: var(--color-surface); }
+  @media (max-width: 900px) {
+    .band    { padding-block: 60px; }
+    .band-sm { padding-block: 44px; }
+  }
+
+  /* 卡片 */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+  .card-hover { transition: border-color .18s ease, box-shadow .18s ease; }
+  .card-hover:hover {
+    border-color: var(--color-ink);
+    box-shadow: 0 4px 16px rgb(28 29 33 / 0.07);
+  }
+
+  /* 标签 */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 5px 9px;
+    border-radius: var(--radius-chip);
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-muted);
+  }
+  .chip-brand { background: var(--color-brand-50); border-color: var(--color-brand-200); color: var(--color-brand-800); }
+  .chip-ok    { background: var(--color-ok-50);   border-color: #a7f3d0; color: #065f46; }
+  .chip-warn  { background: var(--color-warn-50); border-color: #fde68a; color: #92400e; }
+
+  /* 按钮：四种，全站统一 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    padding: 12px 20px;
+    border-radius: var(--radius-chip);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+  }
+  .btn-primary { background: var(--color-ink); color: #fff; }
+  .btn-primary:hover { background: var(--color-brand-600); }
+  .btn-outline { background: var(--color-surface); color: var(--color-ink); border-color: var(--color-line); }
+  .btn-outline:hover { border-color: var(--color-ink); }
+  .btn-brand { background: var(--color-brand-600); color: #fff; }
+  .btn-brand:hover { background: var(--color-brand-700); }
+  .btn-ghost { background: transparent; color: var(--color-ink-soft); padding-inline: 12px; }
+  .btn-ghost:hover { color: var(--color-brand-600); }
+
+  /* 区块标题组 */
+  .sec-head { max-width: 720px; margin-bottom: 44px; }
+  .sec-head-center { margin-inline: auto; text-align: center; }
+  .sec-head p { margin-top: 14px; color: var(--color-muted); font-size: 15px; }
+
+  /* 左栏标签 */
+  .rail-label {
     font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--color-faint);
   }
+
+  /* 文字工具 */
+  .lead { font-size: 17px; line-height: 1.7; color: var(--color-ink-soft); }
+  .muted { color: var(--color-muted); }
+  .faint { color: var(--color-faint); }
+  .data { font-family: var(--font-mono); font-size: 12px; letter-spacing: .02em; }
 }
 
-/* Light crisp scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #F1F5F9;
-}
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+/* 工具字母牌：替代 AI 风景照 */
+.tool-mark {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-radius: var(--radius-card);
+  user-select: none;
 }
 
-/* Smooth dotted flight / journey path style */
-.journey-dotted-line {
-  background-image: radial-gradient(#94A3B8 1.5px, transparent 1.5px);
-  background-size: 16px 16px;
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-line-soft); }
+::-webkit-scrollbar-thumb { background: #cfd3d8; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }

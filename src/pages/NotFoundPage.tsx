@@ -1,33 +1,51 @@
 import React from 'react';
-import { ArrowLeft, Home, Wrench } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from '../utils/router';
 
 export const NotFoundPage: React.FC = () => {
   return (
-    <div className="py-24 sm:py-36 bg-[#F8FAFC] text-center">
-      <div className="mx-auto max-w-md px-4 space-y-6">
-        <div className="font-mono text-slate-900 font-black text-6xl">404</div>
-        <h1 className="text-2xl font-bold text-slate-950">页面未找到</h1>
-        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-          你访问的路径不存在或已被迁移。Quinnverse 仅保留真实有效的公开资产。
-        </p>
-        <div className="pt-4 flex items-center justify-center gap-3 text-xs font-bold">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#0B132B] text-white hover:bg-black transition-colors shadow-xs"
-          >
-            <Home className="w-3.5 h-3.5" />
-            <span>返回首页</span>
-          </Link>
-          <Link
-            to="/products"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-slate-100 text-slate-800 hover:bg-slate-200 transition-colors"
-          >
-            <Wrench className="w-3.5 h-3.5" />
-            <span>浏览自研产品</span>
-          </Link>
+    <section className="band">
+      <div className="container-site">
+        <div className="mx-auto max-w-lg py-12 text-center">
+          <span className="data text-brand-600">404</span>
+          <h1 className="mt-5">页面不存在</h1>
+          <p className="lead mt-5">
+            这个地址可能已经迁移，或者本来就没存在过。
+            下面的入口应该能帮你找到要看的东西。
+          </p>
+
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Link to="/" className="btn btn-primary">
+              回到首页
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/picks" className="btn btn-outline">
+              浏览实测库
+            </Link>
+          </div>
+
+          <div className="mt-12 border-t border-line pt-8 text-left">
+            <span className="rail-label">或者试试这些</span>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {[
+                { to: '/products', t: '自研产品' },
+                { to: '/journal', t: '深度手记' },
+                { to: '/resources', t: '实用手册' },
+                { to: '/contact', t: '联系与反馈' },
+              ].map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className="flex items-center justify-between rounded-chip border border-line px-4 py-3 text-[13.5px] text-ink-soft transition-colors hover:border-ink hover:text-ink"
+                >
+                  {l.t}
+                  <ArrowRight className="h-3.5 w-3.5 text-faint" />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

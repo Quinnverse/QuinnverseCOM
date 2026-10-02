@@ -6,3 +6,10 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# 本地审阅用临时产物（不上游）
+_shots/
+_backup_gemini/
+_shoot.mjs
+_review.mjs
+_review.html

@@ -1,753 +1,376 @@
-import React, { useState } from 'react';
-import { 
-  ArrowRight, 
-  ArrowUpRight, 
-  Search, 
-  Wrench, 
-  ExternalLink,
-  ChevronDown,
-  Check,
-  ShieldCheck,
-  Sparkles,
-  Plus,
-  Minus,
-  Laptop,
-  Workflow,
-  Boxes,
-  MapPin,
-  Star
-} from 'lucide-react';
-import { Link, useRouter } from '../utils/router';
-import { PRODUCTS, PICKS, ACTIVITY_FEED } from '../data/database';
+import React from 'react';
+import { ArrowRight, ArrowUpRight, ExternalLink, Wrench, Compass, Layers } from 'lucide-react';
+import { Link } from '../utils/router';
+import { PRODUCTS, PICKS, ACTIVITY_FEED, SITE_SETTINGS } from '../data/database';
+import { getProductShot, hasRealShot, getToolMark } from '../data/visuals';
+
+const FAMILY_LABEL: Record<string, string> = {
+  GLOBAL_PRODUCT: '完整系统',
+  SMALL_TOOL: '轻量小工具',
+};
 
 export const HomePage: React.FC = () => {
-  const { navigate } = useRouter();
-  const featuredProduct = PRODUCTS.find((p) => p.family === 'GLOBAL_PRODUCT') || PRODUCTS[0];
+  const featured = PRODUCTS.find((p) => p.slug === 'job-application-copilot')!;
   const smallTools = PRODUCTS.filter((p) => p.family === 'SMALL_TOOL');
-
-  // Quick Finder state in Hero
-  const [quickGoal, setQuickGoal] = useState('coding');
-  const [quickEnv, setQuickEnv] = useState('global');
-  const [activeFaq, setActiveFaq] = useState<number | null>(0);
-
-  const handleQuickSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate('/finder');
-  };
-
-  // Top 3 Picks mapped with colorful photography (matching reference design style)
-  const topPicks = [
-    {
-      ...PICKS.find((p) => p.slug === 'cursor')!,
-      image: '/src/assets/images/card_code_craft_1790959868969.jpg',
-      badge: '日常主力 (Daily Driver)',
-      categoryZh: '编程开发 · AI 编辑器',
-      rating: '5.0',
-      priceZh: '免费试用 / Pro 订阅',
-    },
-    {
-      ...PICKS.find((p) => p.slug === 'n8n')!,
-      image: '/src/assets/images/card_sunset_architecture_1790959809823.jpg',
-      badge: '项目实战 (Used in Project)',
-      categoryZh: '效率自动化 · 自托管中间件',
-      rating: '4.9',
-      priceZh: '开源免费 / 官方云端',
-    },
-    {
-      ...PICKS.find((p) => p.slug === 'obsidian')!,
-      image: '/src/assets/images/card_snow_mountain_1790959826707.jpg',
-      badge: '日常主力 (Daily Driver)',
-      categoryZh: '知识笔记 · 本地优先',
-      rating: '5.0',
-      priceZh: '个人完全免费',
-    },
-  ];
-
-  const faqs = [
-    {
-      q: 'Quinnverse 是什么主体性质？',
-      a: 'Quinnverse 是一个围绕「发现问题 → 找到工具 → 做出工具」不断生长的个人独立产品工作室，主体为个人非经营性网站，已完成工业和信息化部域名信息备案（粤ICP备2024018921号-1）。'
-    },
-    {
-      q: 'Picks 工具库是否接受付费赞助或排名购买？',
-      a: '绝不接受。任何工具都无法通过付费购买收录席位或推荐排名。每一个收录项都必须来自我们在真实业务中的长期依赖或严苛场景实测，且缺点和劝退人群均如实公开。'
-    },
-    {
-      q: '自研产品与轻量小工具的区别是什么？',
-      a: '“有些问题值得成为完整产品。有些问题，一个小工具就够了。” 像海外求职助手 (Job Application Copilot) 涉及跨站点 DOM 抓取与申请进度看板流转，需要独立系统支撑；而听默 (TingMo) 播客或完形填空记忆则专注于用最轻的极简形态解决某个特定的麻烦。'
-    },
-    {
-      q: '如何与 Quinnverse 合作开发原型？',
-      a: '我们接受少量高质量的 AI 原型设计、工作流自动化、Web 独立产品与内部小工具定制。你可以通过「合作交流」提交核心痛点，我们在 48 小时内给予明确可行性评估。'
-    },
-    {
-      q: '商业推广返佣（Affiliate）如何处理？',
-      a: '部分第三方工具链接可能包含官方合作返佣，收益全部用于支持服务器和自研软件的持续开销。返佣关系与实测结论严格解耦，页面上始终提供纯净官方直达链接供自主选择。'
-    }
-  ];
+  const featuredShot = getProductShot(featured);
+  const topPicks = PICKS.filter((p) => p.featured).slice(0, 3);
+  const liveTools = PICKS.filter((p) => p.evidenceLevel === 'DAILY DRIVER' || p.evidenceLevel === 'USED IN PROJECT');
 
   return (
-    <div className="bg-[#F8FAFC] text-slate-900 overflow-hidden">
-      {/* ========================================================================= */}
-      {/* 01 HERO SECTION (大图展示 + 白底高质感 + 纯中文版)                         */}
-      {/* ========================================================================= */}
-      <section className="relative pt-10 pb-20 md:pt-14 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center text-left">
-          {/* Left Column: 标题与行动点 */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Kicker Pill */}
-            <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-800 bg-white border border-slate-200/90 px-4 py-1.5 rounded-full shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-blue-600" />
-              <span>独立产品工作室 · 专注真实业务痛点</span>
-            </div>
+    <>
+      {/* ============ Hero ============ */}
+      <section className="band border-b border-line-soft">
+        <div className="container-site">
+          <div className="max-w-3xl">
+            <span className="chip chip-brand">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-600" />
+              {SITE_SETTINGS.status}
+            </span>
 
-            {/* 主标题 */}
-            <div className="space-y-3">
-              <h1 className="font-display text-5xl sm:text-7xl lg:text-7.5xl font-black tracking-tight text-slate-950 leading-[1.08]">
-                发现真正好用的工具。
-                <br />
-                <span className="text-slate-700">找不到合适的，</span>
-                <br />
-                <span className="text-blue-600">就自己做一个。</span>
-              </h1>
-              <div className="text-xs sm:text-sm font-mono text-slate-400 font-semibold tracking-wide">
-                QUINNVERSE / FIND BETTER TOOLS. BUILD WHAT'S MISSING.
-              </div>
-            </div>
+            <h1 className="mt-6">
+              找到真正好用的工具。
+              <br />
+              找不到合适的，就自己做一个。
+            </h1>
 
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
-              记录工具如何被发现、实测、做出来，再交付到真实场景中。这里只收录深度用过的软件，也只制造真正缺少的工具。
+            <p className="lead mt-6 max-w-2xl">
+              这里有两件事：把你实测过的工具如实写清楚（包括缺点和劝退人群），
+              以及把市场上没人做的那些具体卡点，做成能跑起来的小软件。
             </p>
 
-            {/* 行动按钮 */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-2">
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 px-7 py-3.5 text-xs sm:text-sm font-bold text-white bg-slate-900 hover:bg-blue-600 rounded-full shadow-md hover:shadow-lg transition-all active:scale-98"
-              >
-                <Wrench className="w-4 h-4 text-slate-200" />
-                <span>探索自研产品</span>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link to="/picks" className="btn btn-primary">
+                看实测工具库
+                <ArrowRight className="h-4 w-4" />
               </Link>
-
-              <Link
-                to="/picks"
-                className="inline-flex items-center gap-2 px-7 py-3.5 text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-full shadow-xs hover:shadow-sm transition-all"
-              >
-                <Search className="w-4 h-4 text-slate-600" />
-                <span>浏览实测工具</span>
-              </Link>
-
-              <Link
-                to="/work-with-us"
-                className="inline-flex items-center gap-1.5 px-4 py-3 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-950 transition-colors"
-              >
-                <span>与工作室交流</span>
-                <ArrowUpRight className="w-4 h-4" />
+              <Link to="/products" className="btn btn-outline">
+                看自研产品
               </Link>
             </div>
 
-            {/* 核心指标栏 */}
-            <div className="pt-8 border-t border-slate-200/80 grid grid-cols-3 gap-6 max-w-lg">
-              <div>
-                <div className="font-display text-2xl sm:text-3xl font-black text-slate-900">4 款</div>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5">自研独立软件</div>
+            {/* 事实数据条 */}
+            <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-6 border-t border-line pt-8 sm:grid-cols-4">
+              {[
+                { k: '自研产品', v: `${PRODUCTS.length} 个`, note: '3 个已上线' },
+                { k: '收录工具', v: `${PICKS.length} 个`, note: '全部实测' },
+                { k: '手记', v: '5 篇', note: '工程与复盘' },
+                { k: '收费', v: '0 元', note: '不卖收录位' },
+              ].map((s) => (
+                <div key={s.k}>
+                  <dt className="rail-label">{s.k}</dt>
+                  <dd className="mt-2 text-[22px] font-bold tracking-[-0.02em] text-ink">{s.v}</dd>
+                  <dd className="mt-0.5 text-[12.5px] text-muted">{s.note}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 三条路径 ============ */}
+      <section className="band-sm">
+        <div className="container-site">
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                icon: Compass,
+                title: '我不确定该用什么',
+                desc: '描述你的约束和预算，让需求诊断器帮你排除掉不适用的选项。',
+                to: '/finder',
+                cta: '打开需求诊断器',
+              },
+              {
+                icon: Layers,
+                title: '我想看别人踩过哪些坑',
+                desc: `${PICKS.length} 个工具的真实评测，每条都写清了不适用的人群和局限。`,
+                to: '/picks',
+                cta: '浏览实测库',
+              },
+              {
+                icon: Wrench,
+                title: '我要自己做一个小工具',
+                desc: '聊聊你的具体卡点，一到三周交付一个能真跑起来的版本，不是 PPT。',
+                to: '/work-with-us',
+                cta: '聊具体需求',
+              },
+            ].map((c) => (
+              <Link key={c.title} to={c.to} className="card card-hover group flex flex-col p-6">
+                <c.icon className="h-5 w-5 text-brand-600" strokeWidth={1.75} />
+                <h3 className="mt-5">{c.title}</h3>
+                <p className="mt-2.5 flex-1 text-[14px] leading-relaxed text-muted">{c.desc}</p>
+                <span className="mt-5 inline-flex items-center gap-1 text-[13px] font-medium text-ink transition-colors group-hover:text-brand-600">
+                  {c.cta}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ 重点产品 ============ */}
+      <section className="band band-alt border-y border-line">
+        <div className="container-site">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-center">
+            <div>
+              <span className="rail-label">重点产品 · {FAMILY_LABEL[featured.family]}</span>
+              <h2 className="mt-4">{featured.name}</h2>
+              <p className="lead mt-4">{featured.tagline}</p>
+
+              <ul className="mt-7 space-y-3">
+                {featured.features.slice(0, 3).map((f) => (
+                  <li key={f} className="flex gap-3 text-[14px] leading-relaxed text-ink-soft">
+                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-600" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link to={`/products/${featured.slug}`} className="btn btn-primary">
+                  查看产品详情
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <span className="chip chip-warn">Beta · 无公开界面，暂不放截图</span>
               </div>
-              <div className="border-l border-slate-200 pl-6">
-                <div className="font-display text-2xl sm:text-3xl font-black text-slate-900">100%</div>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5">确定性工程实测</div>
-              </div>
-              <div className="border-l border-slate-200 pl-6">
-                <div className="font-display text-2xl sm:text-3xl font-black text-slate-900">零</div>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5">AI 营销套话</div>
-              </div>
+            </div>
+
+            {/* 视觉位：Beta 产品不编造截图，用明确的占位说明 */}
+            <div className="card overflow-hidden">
+              {featuredShot ? (
+                <img src={featuredShot} alt={`${featured.name} 界面`} className="w-full" />
+              ) : (
+                <div className="flex aspect-[16/10] flex-col items-center justify-center gap-3 bg-surface-2 p-8 text-center">
+                  <div className="tool-mark h-14 w-14 text-[20px]" style={{ background: '#f4f5f7', color: '#9ca0a6' }}>
+                    β
+                  </div>
+                  <p className="text-[13.5px] font-medium text-ink-soft">该产品仍在 Beta，暂无公开界面</p>
+                  <p className="max-w-xs text-[12.5px] leading-relaxed text-muted">
+                    没有真实截图就不放图。等它能用了我会把线上界面抓下来放这里。
+                  </p>
+                </div>
+              )}
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Right Column: 丰富的色彩视觉大图 (如同示例图中的视觉中心) */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none rounded-3xl bg-white border border-slate-200/90 p-3 shadow-xl space-y-4 overflow-hidden">
-              {/* 真实生动的高清设计工作室摄影大图 */}
-              <div className="relative h-64 sm:h-72 w-full rounded-2xl overflow-hidden shadow-inner">
-                <img
-                  src="/src/assets/images/hero_studio_showcase_1790959723676.jpg"
-                  alt="Quinnverse Product Studio Workspace"
-                  className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute top-3.5 left-3.5 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-slate-900 shadow-sm flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>正在运行：Job OS</span>
-                </div>
-                <div className="absolute bottom-3.5 left-3.5 right-3.5 bg-slate-900/85 backdrop-blur-md p-3 rounded-xl text-white text-xs flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <div className="font-bold text-white">海外求职助手 (Job Application Copilot)</div>
-                    <div className="text-[11px] text-slate-300">确定性 DOM 解析 · 零 AI 虚构材料</div>
-                  </div>
-                  <Link
-                    to="/products/job-application-copilot"
-                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] whitespace-nowrap"
-                  >
-                    查看详情
+      {/* ============ 小工具（真实截图） ============ */}
+      <section className="band">
+        <div className="container-site">
+          <div className="sec-head">
+            <span className="rail-label">轻量小工具</span>
+            <h2 className="mt-3">三个已经能用的小东西</h2>
+            <p className="max-w-2xl">
+              全部已上线，界面是线上真实截图，不是效果图。每一个都只解决一个具体的麻烦。
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {smallTools.map((p) => {
+              const shot = getProductShot(p);
+              return (
+                <article key={p.id} className="card card-hover overflow-hidden">
+                  <Link to={`/products/${p.slug}`} className="block">
+                    <div className="aspect-[16/10] overflow-hidden border-b border-line bg-surface-2">
+                      {shot ? (
+                        <img
+                          src={shot}
+                          alt={`${p.name} 界面截图`}
+                          className="h-full w-full object-cover object-top"
+                        />
+                      ) : (
+                        <div className="tool-mark h-full w-full text-[28px] faint">—</div>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="!text-[17px]">{p.name}</h3>
+                        <span className="chip chip-ok shrink-0">已上线</span>
+                      </div>
+                      <p className="mt-2.5 text-[13.5px] leading-relaxed text-muted">{p.tagline}</p>
+                    </div>
                   </Link>
-                </div>
-              </div>
-
-              {/* 3 个轻量自用小工具标签条 */}
-              <div className="px-2 py-1 flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-500">还有自用小工具：</span>
-                <div className="flex items-center gap-2">
-                  <a href="https://tingmo.quinnverse.tech" target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors">
-                    听默
-                  </a>
-                  <a href="https://weread.quinnverse.tech" target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors">
-                    微信读书
-                  </a>
-                  <a href="https://clozerecitation.quinnverse.tech" target="_blank" rel="noreferrer" className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold transition-colors">
-                    完形填空
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* INTERACTIVE STUDIO QUICK FINDER (对应参考图中的搜索卡片)                  */}
-        {/* ========================================================================= */}
-        <div className="mt-14 sm:mt-20">
-          <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-xl text-left">
-            {/* Top Bar Tabs */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-4 mb-4 text-xs font-bold">
-              <button className="px-4 py-2 rounded-full bg-slate-900 text-white">
-                需求诊断与推荐
-              </button>
-              <Link to="/products" className="px-4 py-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-                自研产品矩阵
-              </Link>
-              <Link to="/picks" className="px-4 py-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-                工具实测库 (Picks)
-              </Link>
-              <Link to="/resources" className="px-4 py-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-                实用手册与配方
-              </Link>
-            </div>
-
-            {/* Filter Inputs Grid */}
-            <form onSubmit={handleQuickSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
-              <div className="lg:col-span-4 space-y-1">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  01. 核心任务场景
-                </label>
-                <select
-                  value={quickGoal}
-                  onChange={(e) => setQuickGoal(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-900"
-                >
-                  <option value="coding">代码重构与全栈开发 (Cursor / Gemini)</option>
-                  <option value="job">海外职位捕获与表单自动填写 (Job OS)</option>
-                  <option value="automation">跨系统工作流自动化 (n8n)</option>
-                  <option value="notes">本地纯文本知识管理 (Obsidian)</option>
-                </select>
-              </div>
-
-              <div className="lg:col-span-3 space-y-1">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  02. 网络访问与隐私
-                </label>
-                <select
-                  value={quickEnv}
-                  onChange={(e) => setQuickEnv(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-slate-900"
-                >
-                  <option value="domestic">必须支持国内直连使用</option>
-                  <option value="global">海外网络畅通 (追求国际前沿)</option>
-                  <option value="local">数据完全本地化 (零云端出境)</option>
-                </select>
-              </div>
-
-              <div className="lg:col-span-3 space-y-1">
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  03. 筛选逻辑
-                </label>
-                <div className="text-xs sm:text-sm font-bold text-slate-700 py-2.5 px-4 bg-slate-50/70 rounded-2xl border border-slate-200 truncate">
-                  确定性筛选 · 输出 2-3 个实测解
-                </div>
-              </div>
-
-              <div className="lg:col-span-2 pt-1 sm:pt-4">
-                <button
-                  type="submit"
-                  className="w-full inline-flex items-center justify-center gap-1.5 px-5 py-3 text-xs sm:text-sm font-bold text-white bg-slate-900 hover:bg-blue-600 rounded-full shadow-md transition-all active:scale-98 cursor-pointer"
-                >
-                  <span>开始匹配工具</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
+                  <div className="flex items-center justify-between border-t border-line-soft px-5 py-3">
+                    <span className="data text-faint">{p.techStack.slice(0, 2).join(' · ')}</span>
+                    <a
+                      href={p.externalUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[12.5px] font-medium text-ink hover:text-brand-600 transition-colors"
+                    >
+                      打开
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 02 WHO WE ARE (对应参考图中的照片 Bento 组合 + 4 特性方块)                 */}
-      {/* ========================================================================= */}
-      <section className="py-20 bg-white border-y border-slate-200/80 text-left">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Story & 4 Feature Boxes */}
-            <div className="lg:col-span-6 space-y-6">
-              <div className="text-xs font-bold tracking-wider text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full inline-block">
-                关于我们 / 自研初衷
-              </div>
-
-              <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight">
-                为真实问题而写的独立软件
-              </h2>
-
-              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                有些问题值得成为完整产品。有些问题，一个小工具就够了。Quinnverse 绝不为了融资故事盲目扩张，坚持用朴素、确定性的代码解决具体的现实麻烦。
+      {/* ============ Picks 精选 ============ */}
+      <section className="band band-alt border-y border-line">
+        <div className="container-site">
+          <div className="sec-head flex-row items-end justify-between gap-6 max-w-none">
+            <div className="max-w-xl">
+              <span className="rail-label">精选实测 · Picks</span>
+              <h2 className="mt-3">在真实项目里用过的工具</h2>
+              <p className="mt-3.5">
+                每条评测都写了三件事：哪里好用、哪里不够用、什么人不该买。不接受付费收录与排名购买。
               </p>
-
-              {/* 4 Feature Boxes */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
-                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
-                    <Workflow className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div className="text-xs font-bold text-slate-900">确定性工程优先</div>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    核心流程基于 DOM 解析与表单匹配，非大模型不可控黑盒。
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
-                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div className="text-xs font-bold text-slate-900">拒绝虚构履历</div>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    填报信息均来自本人核对，杜绝一键代投盲投。
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
-                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
-                    <Boxes className="w-4 h-4 text-amber-600" />
-                  </div>
-                  <div className="text-xs font-bold text-slate-900">真实深度实测</div>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    每一个收录项均来自高频实战，如实公开缺陷与避坑。
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200/80 p-4.5 bg-slate-50/50 space-y-1.5">
-                  <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold">
-                    <Laptop className="w-4 h-4 text-purple-600" />
-                  </div>
-                  <div className="text-xs font-bold text-slate-900">极简自用小工具</div>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">
-                    听默、微信读书看板与完形填空均独立上线，开箱即用。
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <Link
-                  to="/products"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold shadow-sm transition-all"
-                >
-                  <span>浏览全部自研产品</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
             </div>
-
-            {/* Right: 色彩丰富的 3 连照片 Bento (完全对齐参考图中的生动色彩！) */}
-            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
-              {/* 左侧大图：清澈翠绿瀑布 */}
-              <div className="relative rounded-3xl overflow-hidden shadow-md group h-80 sm:h-96">
-                <img
-                  src="/src/assets/images/card_nature_waterfall_1790959793831.jpg"
-                  alt="Scenic Forest Waterfall"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-white text-xs space-y-1">
-                  <div className="font-bold text-sm">自研小工具：听默 (TingMo)</div>
-                  <div className="text-[11px] text-slate-200">户外行走，也能听课复习</div>
-                </div>
-              </div>
-
-              {/* 右侧两张堆叠图：暖金落日建筑 + 碧蓝海滩 */}
-              <div className="flex flex-col gap-4">
-                <div className="relative rounded-3xl overflow-hidden shadow-md group h-38 sm:h-46">
-                  <img
-                    src="/src/assets/images/card_sunset_architecture_1790959809823.jpg"
-                    alt="Warm European Architecture Sunset"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent" />
-                  <div className="absolute bottom-3 left-3 text-white text-xs">
-                    <span className="font-bold text-xs">微信读书数据看板</span>
-                  </div>
-                </div>
-
-                <div className="relative rounded-3xl overflow-hidden shadow-md group h-38 sm:h-46">
-                  <img
-                    src="/src/assets/images/card_tropical_beach_1790959840986.jpg"
-                    alt="Turquoise Tropical Beach"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent" />
-                  <div className="absolute bottom-3 left-3 text-white text-xs">
-                    <span className="font-bold text-xs">完形填空主动回忆</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 03 TOP PICKS CARDS (每张卡片顶部带高清大图，对齐参考图中的 Top Travel Spots) */}
-      {/* ========================================================================= */}
-      <section className="py-20 md:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
-        <div className="max-w-2xl mx-auto space-y-3">
-          <div className="inline-block text-xs font-bold text-slate-800 bg-slate-100 border border-slate-200 px-3.5 py-1 rounded-full">
-            精选深度实测库
-          </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
-            我们在真实项目中高频依赖的工具
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl mx-auto">
-            真的用过，才会推荐。每一款收录工具都包含我们在真实项目中的使用证据与明确的局限。
-          </p>
-        </div>
-
-        {/* Card Grid with High-Res Image Header (完全对齐参考图2) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          {topPicks.map((pick) => (
-            <div
-              key={pick.id}
-              className="rounded-3xl border border-slate-200/90 bg-white overflow-hidden shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group"
-            >
-              {/* 顶部色彩丰富的高清摄影大图 */}
-              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-100">
-                <img
-                  src={pick.image}
-                  alt={pick.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute top-3.5 left-3.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-bold text-slate-900 shadow-xs">
-                  {pick.badge}
-                </div>
-                <div className="absolute bottom-3 left-3 text-white text-xs drop-shadow-md font-semibold flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                  <span>{pick.categoryZh}</span>
-                </div>
-              </div>
-
-              {/* Card Body */}
-              <div className="p-6 space-y-3.5 flex-1">
-                <h3 className="font-display text-2xl font-bold text-slate-950">
-                  {pick.name}
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
-                  {pick.summary}
-                </p>
-
-                <div className="pt-2 border-t border-slate-100 text-xs text-slate-600">
-                  <span className="font-bold text-slate-900">实测结论：</span>
-                  <p className="mt-1 line-clamp-2 leading-relaxed text-slate-600">
-                    {pick.whatWeFound}
-                  </p>
-                </div>
-              </div>
-
-              {/* Card Bottom Bar (Rating + Price + Pill Button) */}
-              <div className="p-6 pt-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <div>
-                  <div className="text-xs font-bold text-slate-900 flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>★ {pick.rating} (实战验证)</span>
-                  </div>
-                  <div className="text-[11px] text-slate-500 font-medium">
-                    {pick.priceZh}
-                  </div>
-                </div>
-
-                <Link
-                  to={`/picks/${pick.slug}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold transition-all shadow-2xs"
-                >
-                  <span>阅读实测</span>
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <Link
-            to="/picks"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white border border-slate-300 hover:border-slate-900 text-slate-900 text-xs font-bold transition-colors shadow-2xs"
-          >
-            <span>浏览全部实测库 (View All Picks)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 04 SERVICES GRID (对应参考图中的 4 栏定制方块)                             */}
-      {/* ========================================================================= */}
-      <section className="py-20 bg-white border-y border-slate-200/80 text-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          <div className="max-w-2xl mx-auto space-y-3">
-            <div className="inline-block text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full">
-              工作室定制服务
-            </div>
-            <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
-              为具体业务卡点量身定制的研发能力
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl mx-auto">
-              拒绝传统外包的层层堆叠。针对明确具体的业务卡点，快速交付跑通全链路的可运行第一版。
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
-                <Sparkles className="w-5 h-5 text-blue-600" />
-              </div>
-              <h3 className="font-bold text-base text-slate-950">AI 产品原型交付</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                从模糊的想法出发，梳理出确定性数据流，打造可交互、已跑通数据链路的真实 MVP。
-              </p>
-              <div className="pt-2">
-                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-blue-600 inline-flex items-center gap-1">
-                  了解服务详情 ↗
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
-                <Workflow className="w-5 h-5 text-emerald-600" />
-              </div>
-              <h3 className="font-bold text-base text-slate-950">自动化工作流与 Agent</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                针对小团队跨系统数据搬运的痛点，搭建轻量、低维护成本的自动化管线与私有 Agent。
-              </p>
-              <div className="pt-2">
-                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-emerald-600 inline-flex items-center gap-1">
-                  了解服务详情 ↗
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
-                <Laptop className="w-5 h-5 text-purple-600" />
-              </div>
-              <h3 className="font-bold text-base text-slate-950">现代独立 Web 软件</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                现代极客审美的独立 Web 软件与交互前端，高信息密度、克制留白与灵敏流畅响应。
-              </p>
-              <div className="pt-2">
-                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-purple-600 inline-flex items-center gap-1">
-                  了解服务详情 ↗
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200/90 bg-[#FBFBFC] p-6.5 space-y-4 hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-900 font-bold shadow-2xs">
-                <Boxes className="w-5 h-5 text-amber-600" />
-              </div>
-              <h3 className="font-bold text-base text-slate-950">团队私有内部小工具</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                针对特定业务卡点定制的小型私有软件，单体运行，无外部依赖，用完即走。
-              </p>
-              <div className="pt-2">
-                <Link to="/work-with-us" className="text-xs font-bold text-slate-900 hover:text-amber-600 inline-flex items-center gap-1">
-                  了解服务详情 ↗
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <Link
-              to="/work-with-us"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-slate-900 hover:bg-blue-600 text-white text-xs font-bold shadow-sm transition-all"
-            >
-              <span>开启一次真实交流 (Start a conversation)</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+            <Link to="/picks" className="btn btn-outline shrink-0">
+              全部 {PICKS.length} 个
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* ========================================================================= */}
-      {/* 05 ACTIVITY TIMELINE (动态更新流)                                         */}
-      {/* ========================================================================= */}
-      <section className="py-20 md:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
-        <div className="max-w-2xl mx-auto space-y-3">
-          <div className="inline-block text-xs font-bold text-slate-800 bg-slate-100 border border-slate-200 px-3.5 py-1 rounded-full">
-            最新动态与手记
-          </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
-            正在发生的事情
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            按时间顺序记录的产品构建更新、实测补充、公开实验与深度手记。
-          </p>
-        </div>
-
-        {/* Feed Cards List */}
-        <div className="max-w-3xl mx-auto space-y-4 text-left">
-          {ACTIVITY_FEED.map((item) => {
-            const badgeClass =
-              item.type === 'PRODUCT' ? 'text-blue-700 bg-blue-50 border-blue-200' :
-              item.type === 'PICK' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' :
-              item.type === 'LAB' ? 'text-amber-700 bg-amber-50 border-amber-200' :
-              item.type === 'JOURNAL' ? 'text-purple-700 bg-purple-50 border-purple-200' :
-              'text-indigo-700 bg-indigo-50 border-indigo-200';
-
-            const typeZh =
-              item.type === 'PRODUCT' ? '自研产品' :
-              item.type === 'PICK' ? '工具实测' :
-              item.type === 'LAB' ? '前沿实验' :
-              item.type === 'JOURNAL' ? '深度手记' : '实用手册';
-
-            return (
-              <Link
-                key={item.id}
-                to={item.link}
-                className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-2xl border border-slate-200/90 bg-white hover:border-slate-400 hover:shadow-md transition-all gap-4 shadow-2xs"
-              >
-                <div className="flex items-start sm:items-center gap-3.5">
-                  <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${badgeClass} shrink-0`}>
-                    {typeZh}
-                  </span>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-950 group-hover:text-blue-600 transition-colors">
-                      {item.title}
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
-                      {item.note}
-                    </p>
+          <div className="grid gap-4 md:grid-cols-3">
+            {topPicks.map((p) => {
+              const mark = getToolMark(p.slug);
+              return (
+                <Link key={p.id} to={`/picks/${p.slug}`} className="card card-hover group p-6">
+                  <div className="flex items-center gap-3.5">
+                    <div
+                      className="tool-mark h-12 w-12 shrink-0 text-[17px]"
+                      style={{ background: mark.bg, color: mark.fg }}
+                    >
+                      {mark.initials}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="!text-[17px] truncate">{p.name}</h3>
+                      <span className="mt-1 block text-[12px] text-muted">{p.category}</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-3 text-xs text-slate-400 font-mono shrink-0">
-                  <span>{item.date}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-1 group-hover:text-slate-900 transition-all" />
-                </div>
-              </Link>
-            );
-          })}
+                  <p className="mt-5 line-clamp-3 text-[13.5px] leading-relaxed text-muted">{p.summary}</p>
+
+                  <div className="mt-5 space-y-2 border-t border-line-soft pt-4">
+                    {p.fallsShort.slice(0, 2).map((s) => (
+                      <div key={s} className="flex gap-2 text-[12.5px] leading-relaxed text-ink-soft">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-warn-600" />
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 flex items-center justify-between">
+                    <span className="chip">{p.evidenceLevel}</span>
+                    <span className="data text-faint">测试于 {p.lastTested}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* ========================================================================= */}
-      {/* 06 替换“突兀黑块”：生动温暖的高级工作室横幅 (CTA Banner)                     */}
-      {/* ========================================================================= */}
-      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-white shadow-xl overflow-hidden text-left relative">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-center">
-            {/* 左侧文案与表单出口 */}
-            <div className="lg:col-span-7 p-8 sm:p-14 space-y-5">
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full inline-block">
-                开启一次真实合作
-              </span>
-              <h2 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight">
-                有真正值得做成软件的想法？
-              </h2>
-              <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
-                无论是高频卡手的业务流程自动化，还是想在两周内验证一个真实的 AI 原型。我们只做确定性、有事实依据的交付。
+      {/* ============ 动态 ============ */}
+      <section className="band">
+        <div className="container-site">
+          <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
+            <div>
+              <div className="sec-head" style={{ marginBottom: '32px' }}>
+                <span className="rail-label">最近在做什么</span>
+                <h2 className="mt-3">工作室动态</h2>
+              </div>
+
+              <ul className="card divide-y divide-line-soft">
+                {ACTIVITY_FEED.map((a) => (
+                  <li key={a.id}>
+                    <Link to={a.link} className="group flex gap-5 p-5 transition-colors hover:bg-surface-2">
+                      <span className="data shrink-0 pt-1 text-faint">{a.date}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-start justify-between gap-4">
+                          <h3 className="!text-[15px] leading-snug transition-colors group-hover:text-brand-600">
+                            {a.title}
+                          </h3>
+                          <ArrowUpRight className="h-4 w-4 shrink-0 text-faint transition-colors group-hover:text-brand-600" />
+                        </div>
+                        <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{a.note}</p>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 侧栏：常驻工具 + 主张 */}
+            <div className="space-y-4">
+              <div className="card p-6">
+                <span className="rail-label">日常主力</span>
+                <div className="mt-5 space-y-4">
+                  {liveTools.map((p) => {
+                    const mark = getToolMark(p.slug);
+                    return (
+                      <Link key={p.id} to={`/picks/${p.slug}`} className="group flex items-center gap-3.5">
+                        <div
+                          className="tool-mark h-9 w-9 shrink-0 text-[13px]"
+                          style={{ background: mark.bg, color: mark.fg }}
+                        >
+                          {mark.initials}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-[14px] font-medium text-ink transition-colors group-hover:text-brand-600">
+                            {p.name}
+                          </div>
+                          <div className="text-[12px] text-muted">{p.category}</div>
+                        </div>
+                        <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-faint" />
+                      </Link>
+                    );
+                  })}
+                </div>
+                <Link to="/picks" className="btn btn-outline mt-6 w-full">
+                  查看全部评测
+                </Link>
+              </div>
+
+              <div className="card bg-ink p-6 text-white">
+                <span className="rail-label !text-white/45">一条底线</span>
+                <p className="mt-4 text-[15px] font-semibold leading-snug">
+                  说了什么功能，代码里就得有对应实现。
+                </p>
+                <p className="mt-3 text-[13.5px] leading-relaxed text-white/65">
+                  工具不好用就写进劝退栏，不假装有几十人团队，不编造客户评价和产品数据。
+                </p>
+                <Link
+                  to="/journal/anti-slop-guide"
+                  className="mt-5 inline-flex items-center gap-1 text-[13px] font-medium text-white transition-opacity hover:opacity-75"
+                >
+                  读《去油腻指南》
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ CTA ============ */}
+      <section className="band-sm border-t border-line bg-surface">
+        <div className="container-site">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-xl">
+              <h2 className="!text-[26px]">有具体卡点？说来听听</h2>
+              <p className="mt-3 text-[14.5px] leading-relaxed text-muted">
+                如果市面上没有现成方案，或者现成方案太重，我可以用一到三周做一个能真跑起来的版本给你。
               </p>
-
-              <div className="pt-2 flex flex-wrap items-center gap-4">
-                <Link
-                  to="/work-with-us"
-                  className="px-7 py-3.5 rounded-full bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs sm:text-sm transition-all shadow-md active:scale-98"
-                >
-                  开始交流 (48小时内答复) →
-                </Link>
-                <Link
-                  to="/contact"
-                  className="px-6 py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs sm:text-sm transition-colors"
-                >
-                  反馈或自荐好工具
-                </Link>
-              </div>
             </div>
-
-            {/* 右侧：生动、温暖、阳光倾泻的高级摄影大图 (彻底消除突兀黑块！) */}
-            <div className="lg:col-span-5 h-72 lg:h-full min-h-[320px] relative overflow-hidden bg-slate-100">
-              <img
-                src="/src/assets/images/cta_creative_sunlight_1790959855015.jpg"
-                alt="Creative Studio Sunlight Table"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 lg:bg-gradient-to-r lg:from-white/30 lg:to-transparent" />
-              <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-slate-200 text-slate-900 text-center">
-                <div className="text-2xl font-black font-display text-blue-600">48h</div>
-                <div className="text-[10px] font-bold text-slate-600">可行性技术答复</div>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/work-with-us" className="btn btn-brand">
+                聊具体需求
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <a href={`mailto:${SITE_SETTINGS.contactEmail}`} className="btn btn-outline">
+                直接发邮件
+              </a>
             </div>
           </div>
         </div>
       </section>
-
-      {/* ========================================================================= */}
-      {/* 07 FAQ ACCORDION (常见问题与解答)                                         */}
-      {/* ========================================================================= */}
-      <section className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-10">
-        <div className="space-y-3">
-          <div className="inline-block text-xs font-bold text-slate-800 bg-slate-100 border border-slate-200 px-3.5 py-1 rounded-full">
-            常见问题解答
-          </div>
-          <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-            关于工作室定位与选品逻辑的坦诚答复
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
-            不玩公关文字游戏，把真实的规则与原则直接写在明处。
-          </p>
-        </div>
-
-        <div className="space-y-3 text-left">
-          {faqs.map((faq, idx) => {
-            const isOpen = activeFaq === idx;
-            return (
-              <div
-                key={idx}
-                className="rounded-2xl border border-slate-200/90 bg-white overflow-hidden transition-all shadow-2xs"
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveFaq(isOpen ? null : idx)}
-                  className="w-full p-5 sm:p-6 flex items-center justify-between text-left font-bold text-slate-900 text-sm sm:text-base hover:text-blue-600 transition-colors cursor-pointer"
-                >
-                  <span>{faq.q}</span>
-                  <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0 ml-4 text-slate-700">
-                    {isOpen ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                  </span>
-                </button>
-
-                {isOpen && (
-                  <div className="px-5 pb-6 sm:px-6 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-    </div>
+    </>
   );
 };

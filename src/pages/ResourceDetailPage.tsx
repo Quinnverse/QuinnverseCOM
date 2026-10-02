@@ -1,86 +1,170 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Copy, Check } from 'lucide-react';
-import { Link, useRouter } from '../utils/router';
+import { Link } from '../utils/router';
 import { RESOURCES } from '../data/database';
 
+const TYPE_LABEL: Record<string, string> = {
+  GUIDE: '指南',
+  CHECKLIST: '核对清单',
+  SKILL: '提示词配方',
+};
+
+/** 把 markdown 风格的 content 拆成结构化块 */
+function parseContent(raw: string) {
+  return raw.split('\n').reduce<
+    { type: 'h' | 'li' | 'num' | 'p' | 'gap'; text: string }[]
+  >((acc, line) => {
+    const t = line.trim();
+    if (!t) {
+      if (acc.length && acc[acc.length - 1].type !== 'gap') acc.push({ type: 'gap', text: '' });
+      return acc;
+    }
+    if (t.startsWith('### ')) acc.push({ type: 'h', text: t.slice(4) });
+    else if (/^\d+\.\s/.test(t)) acc.push({ type: 'num', text: t.replace(/^\d+\.\s/, '') });
+    else if (/^[-*]\s/.test(t)) acc.push({ type: 'li', text: t.slice(2) });
+    else acc.push({ type: 'p', text: t });
+    return acc;
+  }, []);
+}
+
 export const ResourceDetailPage: React.FC<{ slug: string }> = ({ slug }) => {
-  const { navigate } = useRouter();
-  const resource = RESOURCES.find((r) => r.slug === slug) || RESOURCES[0];
+  const resource = RESOURCES.find((r) => r.slug === slug);
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    if (resource.copyableSnippet) {
-      navigator.clipboard.writeText(resource.copyableSnippet);
+  if (!resource) {
+    return (
+      <section className="band">
+        <div className="container-site">
+          <div className="mx-auto max-w-md py-16 text-center">
+            <h1 className="!text-[28px]">没有这份资源</h1>
+            <p className="lead mt-4">可能链接有误，或者已经更新地址。</p>
+            <Link to="/resources" className="btn btn-primary mt-8">
+              <ArrowLeft className="h-4 w-4" />
+              返回资源库
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const blocks = parseContent(resource.content);
+
+  const handleCopy = async () => {
+    if (!resource.copyableSnippet) return;
+    try {
+      await navigator.clipboard.writeText(resource.copyableSnippet);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
     }
   };
 
   return (
-    <div className="py-16 sm:py-24 bg-[#F8FAFC] text-left">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Back Link */}
-        <Link
-          to="/resources"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>返回实用手册 (Resources)</span>
-        </Link>
+    <>
+      {/* ============ 页头 ============ */}
+      <section className="band-sm border-b border-line-soft">
+        <div className="container-site">
+          <div className="mx-auto max-w-2xl">
+            <Link
+              to="/resources"
+              className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-ink"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              返回资源库
+            </Link>
 
-        {/* Masthead */}
-        <div className="space-y-4 border-b border-slate-200 pb-8">
-          <div className="flex items-center gap-2 text-xs font-mono text-blue-700 font-bold">
-            <span className="bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">{resource.type}</span>
-            <span className="text-slate-300">·</span>
-            <span className="text-slate-500">REUSABLE SPECIFICATION</span>
-          </div>
-
-          <h1 className="font-display text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight">
-            {resource.title}
-          </h1>
-
-          <p className="text-sm sm:text-base text-slate-700 leading-relaxed italic border-l-2 border-slate-900 pl-4 py-1 font-medium">
-            {resource.summary}
-          </p>
-        </div>
-
-        {/* Content Body */}
-        <div className="text-sm sm:text-base text-slate-800 leading-relaxed space-y-6 whitespace-pre-line font-normal">
-          {resource.content}
-        </div>
-
-        {/* Copyable Snippet Box */}
-        {resource.copyableSnippet && (
-          <div className="rounded-3xl border border-slate-200 bg-white p-7 space-y-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-mono text-slate-900 font-bold uppercase tracking-wider">
-                可直接复用的 AI Prompt 配方 / 核对模版
-              </span>
-              <button
-                onClick={handleCopy}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#0B132B] hover:bg-black rounded-full shadow-xs transition-colors"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? '已复制到剪贴板' : '一键复制配方'}</span>
-              </button>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <span className="chip chip-brand">{TYPE_LABEL[resource.type] ?? resource.type}</span>
+              <span className="data text-faint">免费公开 · 可直接复制</span>
             </div>
-            <pre className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-800 whitespace-pre-wrap leading-relaxed overflow-x-auto">
-              {resource.copyableSnippet}
-            </pre>
-          </div>
-        )}
 
-        {/* Footer Navigation */}
-        <div className="pt-6 border-t border-slate-200 flex items-center justify-between text-xs font-bold">
-          <Link to="/resources" className="text-slate-500 hover:text-slate-900 transition-colors">
-            ← 返回实用手册
-          </Link>
-          <Link to="/picks" className="text-slate-900 hover:underline">
-            探索实测工具库 (Picks) →
-          </Link>
+            <h1 className="mt-5">{resource.title}</h1>
+
+            <p className="mt-6 border-l-2 border-brand-600 pl-5 text-[16px] font-medium leading-relaxed text-ink-soft">
+              {resource.summary}
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* ============ 正文 ============ */}
+      <section className="band-sm">
+        <div className="container-site">
+          <div className="mx-auto max-w-2xl">
+            <p className="text-[14.5px] leading-relaxed text-muted">{resource.description}</p>
+
+            <div className="mt-9 space-y-4">
+              {blocks.map((b, i) => {
+                if (b.type === 'gap') return <div key={i} className="h-2" />;
+                if (b.type === 'h') {
+                  return (
+                    <h2 key={i} className="!text-[20px] pt-6">
+                      {b.text}
+                    </h2>
+                  );
+                }
+                if (b.type === 'num' || b.type === 'li') {
+                  return (
+                    <div key={i} className="flex gap-3.5">
+                      <span className="data mt-1 shrink-0 text-brand-600">
+                        {b.type === 'num' ? `${blocks.slice(0, i).filter((x) => x.type === 'num').length}.` : '·'}
+                      </span>
+                      <p className="text-[15px] leading-[1.75] text-ink-soft">{b.text}</p>
+                    </div>
+                  );
+                }
+                return (
+                  <p key={i} className="text-[15px] leading-[1.75] text-ink-soft">
+                    {b.text}
+                  </p>
+                );
+              })}
+            </div>
+
+            {/* 配方框 */}
+            {resource.copyableSnippet && (
+              <div className="mt-12 overflow-hidden rounded-card border border-line">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-surface-2 px-5 py-3.5">
+                  <span className="rail-label">
+                    {resource.type === 'SKILL' ? '提示词配方' : '核对模板'}
+                  </span>
+                  <button
+                    onClick={handleCopy}
+                    className={`btn !py-2 !text-[12.5px] ${copied ? 'btn-outline' : 'btn-primary'}`}
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 text-ok-600" />
+                        已复制
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5" />
+                        一键复制
+                      </>
+                    )}
+                  </button>
+                </div>
+                <pre className="overflow-x-auto whitespace-pre-wrap break-words bg-surface p-5 font-mono text-[12.5px] leading-relaxed text-ink-soft">
+                  {resource.copyableSnippet}
+                </pre>
+              </div>
+            )}
+
+            {/* 底部 */}
+            <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
+              <Link to="/resources" className="text-[13.5px] text-muted transition-colors hover:text-ink">
+                ← 返回资源库
+              </Link>
+              <Link to="/picks" className="text-[13.5px] font-medium text-ink transition-colors hover:text-brand-600">
+                去实测库 →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };

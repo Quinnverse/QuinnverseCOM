@@ -1,400 +1,346 @@
-import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, RotateCcw, Check, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ArrowLeft, ArrowRight, RotateCcw, Check, ExternalLink, AlertTriangle } from 'lucide-react';
 import { Link } from '../utils/router';
 import { PICKS } from '../data/database';
-import { PickItem } from '../types';
+import { getToolMark } from '../data/visuals';
+import type { PickItem } from '../types';
 
-export const FinderPage: React.FC = () => {
-  const [step, setStep] = useState(1);
-  const [goal, setGoal] = useState<'coding' | 'automation' | 'notes' | 'agent' | 'visual'>('coding');
-  const [technical, setTechnical] = useState<'turnkey' | 'light' | 'hacker'>('light');
-  const [access, setAccess] = useState<'domestic' | 'global' | 'local'>('global');
-  const [budget, setBudget] = useState<'free' | 'freemium' | 'paid'>('freemium');
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+type Goal = 'coding' | 'automation' | 'notes' | 'agent' | 'visual';
+type Technical = 'turnkey' | 'light' | 'hacker';
+type Access = 'domestic' | 'global' | 'local';
+type Budget = 'free' | 'freemium' | 'paid';
 
-  // Deterministic diagnostic scoring algorithm
-  const getRecommendations = (): { pick: PickItem; reason: string; tradeoff: string }[] => {
-    const results: { pick: PickItem; reason: string; tradeoff: string }[] = [];
+const QUESTIONS = [
+  {
+    key: 'goal' as const,
+    title: '你的首要目标场景是什么？',
+    hint: '选当前最卡手、最想提效的那件事。',
+    options: [
+      { id: 'coding',     t: '写代码与全栈重构',       d: '跨文件重构、代码理解、补全' },
+      { id: 'automation', t: '跨系统工作流自动化',      d: '让应用和 API 之间自动同步数据' },
+      { id: 'notes',      t: '个人知识库与笔记',        d: '笔记要永久本地可读，不被格式锁定' },
+      { id: 'agent',      t: '搭 AI 原型与 Agent 流程', d: '把点子快速跑通，验证大模型能做什么' },
+      { id: 'visual',     t: '专业视觉生成',           d: '精确控制构图与光影，不接受随机结果' },
+    ],
+  },
+  {
+    key: 'technical' as const,
+    title: '你愿意接受多少配置成本？',
+    hint: '这决定推荐自建还是 SaaS。',
+    options: [
+      { id: 'turnkey', t: '开箱即用',        d: '成熟 SaaS，登录就能用，不碰本地环境' },
+      { id: 'light',   t: '轻度配置',        d: '看得懂基础教程，愿意装客户端或填 API Key' },
+      { id: 'hacker',  t: '极客自建',        d: '熟悉命令行和容器，追求完全的数据控制权' },
+    ],
+  },
+  {
+    key: 'access' as const,
+    title: '网络和数据边界怎么定？',
+    hint: '直接排除你无法接受的选项。',
+    options: [
+      { id: 'domestic', t: '必须国内直连',   d: '国内网络下要顺畅加载' },
+      { id: 'global',   t: '海外网络畅通',   d: '有国际访问条件，想用全球生态' },
+      { id: 'local',    t: '数据必须本地',   d: '敏感数据不允许上传第三方云端' },
+    ],
+  },
+  {
+    key: 'budget' as const,
+    title: '预算上你的底线是？',
+    hint: '按费用模型筛一遍。',
+    options: [
+      { id: 'free',     t: '必须完全免费',   d: '优先开源与社区方案' },
+      { id: 'freemium', t: '免费额度够用',   d: '日常用免费版，必要时偶尔付费' },
+      { id: 'paid',     t: '愿意为提效付费', d: '确实能省时间就付订阅费' },
+    ],
+  },
+];
 
-    if (goal === 'coding') {
-      const cursor = PICKS.find((p) => p.slug === 'cursor');
-      if (cursor) {
-        results.push({
-          pick: cursor,
-          reason: 'Tab 全局补全与多文件跨模块重构能力在工程开发中响应极快，非常契合快速构建。',
-          tradeoff: '在超大单体仓库中全库索引偶有卡顿；每月有快速请求上限。',
-        });
-      }
-      const gemini = PICKS.find((p) => p.slug === 'gemini');
-      if (gemini) {
-        results.push({
-          pick: gemini,
-          reason: '百万长上下文适合一次性塞入整套工程文档或代码库进行全局架构审计与问答。',
-          tradeoff: '需海外网络环境支持；复杂中式俚语推理偶尔不如顶尖小模型敏捷。',
-        });
-      }
-    } else if (goal === 'automation') {
-      const n8n = PICKS.find((p) => p.slug === 'n8n');
-      if (n8n) {
-        results.push({
-          pick: n8n,
-          reason: '可自托管的节点式中间件，赋予你对多平台自动化数据流的 100% 数据隐私主权。',
-          tradeoff: '需要基础的 Docker 部署知识；高并发下的内存与日志需手动调优。',
-        });
-      }
-    } else if (goal === 'notes') {
-      const obsidian = PICKS.find((p) => p.slug === 'obsidian');
-      if (obsidian) {
-        results.push({
-          pick: obsidian,
-          reason: '基于本地纯文本 Markdown 与双链，无需担忧云厂商倒闭或格式锁定，沉淀长线知识资产。',
-          tradeoff: '原生官方同步服务需额外订阅；开箱即用度有限，需要花时间搭建插件习惯。',
-        });
-      }
-    } else if (goal === 'agent') {
-      const dify = PICKS.find((p) => p.slug === 'dify');
-      if (dify) {
-        results.push({
-          pick: dify,
-          reason: '可视化知识库 RAG 切片测试与 Agent 画布极大削减了写胶水代码验证点子的时间。',
-          tradeoff: '深度动态条件分支极端复杂时，画布节点连接可能会变得臃肿。',
-        });
-      }
-    } else if (goal === 'visual') {
-      const comfy = PICKS.find((p) => p.slug === 'comfyui');
-      if (comfy) {
-        results.push({
-          pick: comfy,
-          reason: '节点图精准解构扩散模型每一步隐空间变换与 ControlNet 约束，显存调度优异。',
-          tradeoff: '学习曲线陡峭；各开源自定义节点容易发生 Python 环境冲突。',
-        });
-      }
-    }
-
-    if (results.length === 0) {
-      const cursor = PICKS.find((p) => p.slug === 'cursor');
-      if (cursor) {
-        results.push({
-          pick: cursor,
-          reason: 'Quinnverse 核心日常主力工具，在代码与工程交付中拥有极高的综合产出比。',
-          tradeoff: '免费版请求受限，建议按需订阅。',
-        });
-      }
-    }
-
-    return results;
+/** 确定性排除规则：只按硬约束过滤，不做随机打分 */
+function diagnose(goal: Goal, access: Access, budget: Budget): PickItem[] {
+  const byGoal: Record<Goal, string[]> = {
+    coding: ['cursor', 'gemini'],
+    automation: ['n8n'],
+    notes: ['obsidian'],
+    agent: ['dify', 'gemini'],
+    visual: ['comfyui'],
   };
 
-  const recommendations = getRecommendations();
+  return byGoal[goal]
+    .map((slug) => PICKS.find((p) => p.slug === slug)!)
+    .filter(Boolean)
+    .filter((p) => {
+      // 国内直连：排除必须海外网络的
+      if (access === 'domestic' && /需特定网络|需海外/.test(p.pricingAccess.accessFromChina)) return false;
+      // 数据必须本地：排除 SaaS 云托管与需要海外的
+      if (access === 'local' && /云端|托管/.test(p.pricingAccess.pricingModel) && !/自建|开源免费/.test(p.pricingAccess.pricingModel)) {
+        return false;
+      }
+      // 预算过滤
+      if (budget === 'free' && !/完全免费|开源免费/.test(p.pricingAccess.pricingModel)) return false;
+      return true;
+    });
+}
 
-  const handleRestart = () => {
-    setStep(1);
-    setHasSubmitted(false);
+export const FinderPage: React.FC = () => {
+  const [step, setStep] = useState(0);
+  const [goal, setGoal] = useState<Goal>('coding');
+  const [technical, setTechnical] = useState<Technical>('light');
+  const [access, setAccess] = useState<Access>('global');
+  const [budget, setBudget] = useState<Budget>('freemium');
+  const [done, setDone] = useState(false);
+
+  const recommendations = useMemo(() => diagnose(goal, access, budget), [goal, access, budget]);
+
+  const current = QUESTIONS[step];
+  const isLast = step === QUESTIONS.length - 1;
+
+  const value = current.key === 'goal' ? goal : current.key === 'technical' ? technical : current.key === 'access' ? access : budget;
+  const setValue = (v: string) => {
+    if (current.key === 'goal') setGoal(v as Goal);
+    else if (current.key === 'technical') setTechnical(v as Technical);
+    else if (current.key === 'access') setAccess(v as Access);
+    else setBudget(v as Budget);
+  };
+
+  const restart = () => {
+    setStep(0);
+    setDone(false);
   };
 
   return (
-    <div className="py-16 sm:py-24 bg-[#F8FAFC] text-left">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 space-y-10">
-        {/* Navigation Breadcrumb */}
-        <Link
-          to="/picks"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>返回实测库 (Picks)</span>
-        </Link>
+    <>
+      {/* ============ 页头 ============ */}
+      <section className="border-b border-line-soft pt-8">
+        <div className="container-site">
+          <Link to="/picks" className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-ink">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            返回实测库
+          </Link>
 
-        {/* Masthead */}
-        <div className="space-y-3 border-b border-slate-200 pb-8">
-          <div className="inline-block text-xs font-bold font-mono tracking-wider uppercase text-blue-600 bg-blue-50 border border-blue-200 px-3.5 py-1 rounded-full">
-            DETERMINISTIC DIAGNOSTIC ENGINE
+          <div className="mt-8 max-w-3xl pb-10">
+            <span className="chip chip-brand">需求诊断器</span>
+            <h1 className="mt-6">说清你的约束，我帮你排除</h1>
+            <p className="lead mt-6 max-w-2xl">
+              四道确定性过滤题，按硬条件把 {PICKS.length} 个工具缩小到真正相关的。
+              纯规则匹配，没有随机性，也不猜你喜欢什么。
+            </p>
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl font-black text-slate-950 tracking-tight">
-            Quinnverse Finder
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Tell Quinnverse what you’re trying to do.  
-            不要在数百个工具分类里迷失。勾选你的真实边界条件，诊断器将从实测库中为你匹配 2~3 个最适合的选项。
-          </p>
         </div>
+      </section>
 
-        {/* Diagnostic Wizard Box */}
-        {!hasSubmitted ? (
-          <div className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-10 shadow-xl space-y-8">
-            {/* Step Indicator */}
-            <div className="flex items-center justify-between text-xs text-slate-500 font-mono border-b border-slate-100 pb-4">
-              <span className="font-bold text-slate-900">STEP {step} OF 4</span>
-              <span>确定性规则过滤 · 零 LLM 随机性</span>
-            </div>
-
-            {/* STEP 1: GOAL */}
-            {step === 1 && (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-slate-950">
-                    01. 你的首要目标场景是什么？
-                  </h3>
-                  <p className="text-xs text-slate-500">选择当前最卡手或最迫切希望提效的具体任务。</p>
-                </div>
-                <div className="space-y-2.5 pt-2">
-                  {[
-                    { id: 'coding', title: '写代码与全栈重构', desc: '需要深入代码语义的工程重构、跨文件索引与 Tab 补全' },
-                    { id: 'automation', title: '跨系统工作流自动化', desc: '让多个应用、API 之间自动异步同步数据，拒绝复制粘贴' },
-                    { id: 'notes', title: '个人知识库与第二大脑', desc: '沉淀深度思考与长文手记，必须保证笔记数据永久本地自主可读' },
-                    { id: 'agent', title: '搭建 AI 原型与 Agent 流程', desc: '想把一个业务点子快速跑通，测试大模型能否变成结构化流水线' },
-                    { id: 'visual', title: '高精度专业视觉生图', desc: '精确控制主体姿态、光影与构图，不满足于通用随机生图' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setGoal(opt.id as any)}
-                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
-                        goal === opt.id
-                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
-                      }`}
-                    >
-                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 2: TECHNICAL COMFORT */}
-            {step === 2 && (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-slate-950">
-                    02. 你的技术适应度与配置意愿如何？
-                  </h3>
-                  <p className="text-xs text-slate-500">确定工具的上手复杂度边界。</p>
-                </div>
-                <div className="space-y-2.5 pt-2">
-                  {[
-                    { id: 'turnkey', title: '开箱即用 (Turnkey)', desc: '最好是成熟 SaaS，登录就能用，不想折腾任何本地环境与依赖' },
-                    { id: 'light', title: '轻度配置 (Light Config)', desc: '能看懂基础教程，愿意安装轻量客户端或填入必要的 API Key' },
-                    { id: 'hacker', title: '极客自建 (Self-hosted / Docker)', desc: '熟悉命令行与容器部署，追求完全的数据控制权' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setTechnical(opt.id as any)}
-                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
-                        technical === opt.id
-                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
-                      }`}
-                    >
-                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: ACCESS & PRIVACY */}
-            {step === 3 && (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-slate-950">
-                    03. 你的网络环境与数据隐私边界是？
-                  </h3>
-                  <p className="text-xs text-slate-500">排除无法稳定访问或触犯隐私红线的选项。</p>
-                </div>
-                <div className="space-y-2.5 pt-2">
-                  {[
-                    { id: 'domestic', title: '必须国内直连可用', desc: '无海外网络配置，要求在国内网络环境下顺畅加载' },
-                    { id: 'global', title: '海外网络畅通', desc: '具备国际网络访问条件，希望使用全球顶尖前沿生态' },
-                    { id: 'local', title: '数据完全本地化 (Local-first)', desc: '绝不允许商业核心代码或敏感个人数据上传至任何第三方云端' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setAccess(opt.id as any)}
-                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
-                        access === opt.id
-                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
-                      }`}
-                    >
-                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 4: BUDGET */}
-            {step === 4 && (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-slate-950">
-                    04. 你的预算考量倾向？
-                  </h3>
-                  <p className="text-xs text-slate-500">筛选对应费用模型的工具。</p>
-                </div>
-                <div className="space-y-2.5 pt-2">
-                  {[
-                    { id: 'free', title: '坚持纯开源或完全免费', desc: '不打算为软件支付订阅费，优先开源与社区方案' },
-                    { id: 'freemium', title: '免费增值 (Freemium 够用即可)', desc: '日常白嫖免费额度，必要时接受偶尔轻度付费' },
-                    { id: 'paid', title: '愿意为明显提效的工具付费', desc: '只要确实能省下时间与人力，愿意按月支付专业订阅费用' },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setBudget(opt.id as any)}
-                      className={`w-full p-4.5 rounded-2xl border text-left transition-all ${
-                        budget === opt.id
-                          ? 'border-slate-900 bg-slate-50 text-slate-950 shadow-xs'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
-                      }`}
-                    >
-                      <div className="font-bold text-sm text-slate-950">{opt.title}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-              {step > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep(step - 1)}
-                  className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-950 transition-colors"
-                >
-                  ← 上一步
-                </button>
-              ) : (
-                <div />
-              )}
-
-              {step < 4 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep(step + 1)}
-                  className="inline-flex items-center gap-1.5 px-6 py-3 text-xs font-bold text-white bg-[#0B132B] hover:bg-black rounded-full shadow-sm transition-all"
-                >
-                  <span>下一步</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setHasSubmitted(true)}
-                  className="inline-flex items-center gap-1.5 px-7 py-3 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-full shadow-sm transition-all"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>生成诊断推荐</span>
-                </button>
-              )}
-            </div>
-          </div>
-        ) : (
-          /* Recommendation Output Panel */
-          <div className="space-y-8">
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-              <div className="space-y-1">
-                <span className="text-xs font-mono font-bold text-blue-600 uppercase">DIAGNOSIS RESULT</span>
-                <h3 className="text-lg font-bold text-slate-950">基于你的边界条件，推荐以下实测选项：</h3>
-                <p className="text-xs text-slate-500">
-                  条件组合：`[{goal}]` · `[{technical}]` · `[{access}]` · `[{budget}]`
-                </p>
-              </div>
-              <button
-                onClick={handleRestart}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors whitespace-nowrap"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>重新诊断</span>
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {recommendations.map((rec, i) => (
-                <div
-                  key={rec.pick.id}
-                  className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-9 space-y-6 shadow-md"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="font-mono text-blue-600 font-bold">MATCH 0{i + 1}</span>
-                        <span className="text-slate-300">·</span>
-                        <span className="text-slate-500 font-semibold">{rec.pick.category}</span>
-                      </div>
-                      <h4 className="text-2xl font-bold text-slate-950">{rec.pick.name}</h4>
-                    </div>
-                    <div>
-                      <span className="text-xs font-mono font-bold px-3 py-1 rounded-full border text-emerald-800 bg-emerald-50 border-emerald-200">
-                        {rec.pick.evidenceLevel}
-                      </span>
-                    </div>
+      {/* ============ 主体 ============ */}
+      <section className="band-sm">
+        <div className="container-site">
+          <div className="max-w-3xl">
+            {!done ? (
+              <div className="card p-7 sm:p-9">
+                {/* 进度 */}
+                <div className="flex items-center justify-between border-b border-line-soft pb-4">
+                  <span className="data text-brand-600">
+                    {String(step + 1).padStart(2, '0')} / {String(QUESTIONS.length).padStart(2, '0')}
+                  </span>
+                  {/* 进度点 */}
+                  <div className="flex items-center gap-1.5">
+                    {QUESTIONS.map((_, i) => (
+                      <span
+                        key={i}
+                        className={`h-1.5 rounded-full transition-all ${
+                          i === step ? 'w-6 bg-brand-600' : i < step ? 'w-1.5 bg-brand-400' : 'w-1.5 bg-line'
+                        }`}
+                      />
+                    ))}
                   </div>
+                </div>
 
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    {rec.pick.summary}
-                  </p>
+                {/* 题目 */}
+                <div className="mt-7">
+                  <h2 className="!text-[20px]">{current.title}</h2>
+                  <p className="mt-2 text-[13.5px] text-muted">{current.hint}</p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div className="rounded-2xl bg-emerald-50/50 border border-emerald-200 p-4.5 space-y-1">
-                      <div className="font-bold text-emerald-800">为什么契合你的场景 (Why this fits)</div>
-                      <p className="text-slate-700 leading-relaxed font-medium">{rec.reason}</p>
-                    </div>
-
-                    <div className="rounded-2xl bg-rose-50/50 border border-rose-200 p-4.5 space-y-1">
-                      <div className="font-bold text-rose-800">必须知晓的局限 (Trade-offs)</div>
-                      <p className="text-slate-700 leading-relaxed font-medium">{rec.tradeoff}</p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs">
-                    <div className="text-slate-500 font-mono text-[11px]">
-                      国内直连: {rec.pick.pricingAccess.accessFromChina} · {rec.pick.pricingAccess.pricingModel.split(' ')[0]}
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Link
-                        to={`/picks/${rec.pick.slug}`}
-                        className="font-bold text-slate-900 hover:text-blue-600"
+                  <div className="mt-6 space-y-2.5">
+                    {current.options.map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setValue(opt.id)}
+                        className={`w-full cursor-pointer rounded-card border p-4 text-left transition-colors ${
+                          value === opt.id
+                            ? 'border-ink bg-surface-2'
+                            : 'border-line bg-surface hover:border-ink/40'
+                        }`}
                       >
-                        阅读完整实测手记 →
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                              value === opt.id ? 'border-ink bg-ink' : 'border-line'
+                            }`}
+                          >
+                            {value === opt.id && <span className="h-1.5 w-1.5 rounded-full bg-surface" />}
+                          </span>
+                          <span className="text-[14.5px] font-medium text-ink">{opt.t}</span>
+                        </div>
+                        <p className="mt-1.5 pl-7 text-[13px] leading-relaxed text-muted">{opt.d}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 导航 */}
+                <div className="mt-8 flex items-center justify-between border-t border-line-soft pt-6">
+                  {step > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => setStep(step - 1)}
+                      className="btn btn-ghost"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      上一步
+                    </button>
+                  ) : (
+                    <span />
+                  )}
+
+                  {isLast ? (
+                    <button type="button" onClick={() => setDone(true)} className="btn btn-brand">
+                      生成结果
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => setStep(step + 1)} className="btn btn-primary">
+                      下一步
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {/* 结果头 */}
+                <div className="card flex flex-wrap items-center justify-between gap-4 p-6">
+                  <div>
+                    <span className="rail-label">筛选结果</span>
+                    <h2 className="mt-2.5 !text-[19px]">
+                      符合你全部硬约束的工具：{recommendations.length} 个
+                    </h2>
+                    <p className="mt-2 data text-faint">
+                      目标 {goal} · 配置 {technical} · 网络 {access} · 预算 {budget}
+                    </p>
+                  </div>
+                  <button onClick={restart} className="btn btn-outline shrink-0">
+                    <RotateCcw className="h-4 w-4" />
+                    重新诊断
+                  </button>
+                </div>
+
+                {/* 推荐卡 */}
+                {recommendations.length > 0 ? (
+                  recommendations.map((pick, i) => {
+                    const mark = getToolMark(pick.slug);
+                    return (
+                      <article key={pick.id} className="card card-hover p-7">
+                        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line-soft pb-5">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className="tool-mark h-14 w-14 shrink-0 text-[19px]"
+                              style={{ background: mark.bg, color: mark.fg }}
+                            >
+                              {mark.initials}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2.5">
+                                <span className="data text-brand-600">0{i + 1}</span>
+                                <span className="text-[12.5px] text-muted">{pick.category}</span>
+                              </div>
+                              <h3 className="mt-1 !text-[19px]">{pick.name}</h3>
+                            </div>
+                          </div>
+                          <span className="chip chip-ok shrink-0">通过全部过滤</span>
+                        </div>
+
+                        <p className="mt-5 text-[14px] leading-relaxed text-ink-soft">{pick.summary}</p>
+
+                        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                          <div className="rounded-card bg-ok-50/60 p-4">
+                            <div className="flex items-center gap-1.5 text-[12px] font-semibold text-ok-600">
+                              <Check className="h-3.5 w-3.5" />
+                              为什么适合你
+                            </div>
+                            <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{pick.whatWeFound}</p>
+                          </div>
+                          <div className="rounded-card bg-warn-50/70 p-4">
+                            <div className="flex items-center gap-1.5 text-[12px] font-semibold text-warn-600">
+                              <AlertTriangle className="h-3.5 w-3.5" />
+                              需要接受的代价
+                            </div>
+                            <ul className="mt-2 space-y-1.5">
+                              {pick.fallsShort.map((f) => (
+                                <li key={f} className="text-[13px] leading-relaxed text-ink-soft">
+                                  · {f}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-line-soft pt-5">
+                          <span className="data text-faint">
+                            {pick.pricingAccess.pricingModel} · {pick.pricingAccess.accessFromChina}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-4">
+                            <Link to={`/picks/${pick.slug}`} className="text-[13px] font-medium text-ink transition-colors hover:text-brand-600">
+                              看完整评测
+                            </Link>
+                            <a
+                              href={pick.officialUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn btn-outline !py-2 !text-[13px]"
+                            >
+                              官网
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })
+                ) : (
+                  <div className="card p-10 text-center">
+                    <AlertTriangle className="mx-auto h-8 w-8 text-warn-600" strokeWidth={1.75} />
+                    <h3 className="mt-4 !text-[18px]">没有工具同时满足这四个条件</h3>
+                    <p className="mx-auto mt-3 max-w-md text-[14px] leading-relaxed text-muted">
+                      这是个真实结论，不是 bug。可以放宽预算或网络条件再试一次，
+                      如果你认为这个组合应该存在工具，那正说明这里有个卡点值得自己做一个。
+                    </p>
+                    <div className="mt-7 flex flex-wrap justify-center gap-3">
+                      <button onClick={restart} className="btn btn-primary">
+                        <RotateCcw className="h-4 w-4" />
+                        换个条件重试
+                      </button>
+                      <Link to="/contact" className="btn btn-outline">
+                        提交这个未解卡点
                       </Link>
-                      <a
-                        href={rec.pick.officialUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0B132B] hover:bg-black text-white font-bold transition-colors"
-                      >
-                        <span>访问官网</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                )}
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 text-xs text-slate-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-              <div>
-                <span className="text-slate-900 font-bold">没有找到完美的解法？</span>
-                <p className="mt-0.5">现有市面产品未覆盖的严重断层，往往就是值得自研的信号。欢迎向我们提交你的卡点。</p>
+                {/* 兜底提示 */}
+                <div className="card bg-surface-2 p-6">
+                  <span className="rail-label">这个诊断器没做的事</span>
+                  <p className="mt-3 text-[13.5px] leading-relaxed text-ink-soft">
+                    它只按你给的硬条件做排除，不打分、不排序、不猜偏好。
+                    最后选哪个，取决于你的实际判断。想看全部 {PICKS.length} 个评测，可以直接
+                    <Link to="/picks" className="mx-1 font-medium text-ink underline underline-offset-2 hover:text-brand-600">
+                      翻实测库
+                    </Link>
+                    自己对比。
+                  </p>
+                </div>
               </div>
-              <Link
-                to="/contact"
-                className="px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold whitespace-nowrap"
-              >
-                提交未解痛点
-              </Link>
-            </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      </section>
+    </>
   );
 };
